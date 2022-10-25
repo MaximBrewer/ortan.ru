@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Наценка в категориях</name>
+    <code>categorymarkup</code>
+    <version>1.0</version>
+    <author>https://pixelmax.com</author>
+    <link>https://pixelmax.com</link>
+    <file path="catalog/model/catalog/product.php">
+        <operation>
+            <search index="0">
+                <![CDATA[public function getProduct($product_id) {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+
+	public function getCategoryMarkup($product_id)
+	{
+        $categoryMarkup = ['markup' => 0, 'category_id' =>0];
+
+		$this->load->model('catalog/category');
+
+		$categories = $this->getCategories($product_id);
+		if ($categories) {
+			foreach ($categories as $category) {
+				if (isset($category['main_category']) && $category['main_category']) break;
+			}
+
+			if ($category['category_id']) {
+				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category WHERE category_id = '" . (int)$category['category_id'] . "'");
+				$category = $query->row;
+				while (!$category['markup'] && (int)$category['parent_id']) {
+					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category WHERE category_id = '" . (int)$category['parent_id'] . "'");
+					$category = $query->row;
+				}
+			}
+		}
+        return $category && isset($category['category_id']) && $category['markup'] ? $category : $categoryMarkup;
+	}
+
+	public function getRubRate()
+	{
+		$this->load->model('localisation/currency');
+		$ue = $this->model_localisation_currency->getCurrencyByCode('RUB');
+		return $ue['value'];
+	}
+
+]]>
+            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA['price'            => ($query->row['discount'] ? $query->row['discount'] : $query->row['price']),]]>
+            </search>
+            <add position="replace">
+                <![CDATA['price'            => $price,]]>
+            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA[if ($query->num_rows) {]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+
+			$price = ($query->row['discount'] ? $query->row['discount'] : $query->row['price']);
+
+			$markupCategory = $this->getCategoryMarkup($product_id);
+            $price = $price + $markupCategory['markup'];
+
+			]]>            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA[$product_option_data = array();]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+
+		$markup = $this->getCategoryMarkup($product_id);
+		$rate = $this->getRubRate();
+
+		]]>
+            </add>
+        </operation>
+    </file>
+    <file path="system/library/cart/cart.php">
+        <operation>
+            <search index="0">
+                <![CDATA[public function __construct($registry) {]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+
+                $registry->get('load')->model('catalog/product');
+                $this->model_catalog_product = $registry->get('model_catalog_product');
+
+				]]>
+            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA[$product_data[] = array(]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+
+				$markupCategory = $this->model_catalog_product->getCategoryMarkup($product_query->row['product_id']);
+				$price = $price + $markupCategory['markup'];
+
+				]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/view/template/catalog/category_form.tpl">
+        <operation>
+            <search index="6">
+                <![CDATA[<div class="form-group">]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sort-order">Наценка</label>
+                <div class="col-sm-10">
+                  <input type="text" name="markup" value="<?php echo $markup; ?>" placeholder="Наценка" id="input-markup" class="form-control" />
+                </div>
+              </div>
+				]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/controller/catalog/category.php">
+        <operation>
+            <search index="0">
+                <![CDATA[if (isset($this->request->post['sort_order'])) {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+
+		if (isset($this->request->post['markup'])) {
+			$data['markup'] = $this->request->post['markup'];
+		} elseif (!empty($category_info)) {
+			$data['markup'] = $category_info['markup'];
+		} else {
+			$data['markup'] = 0;
+		}
+				]]>
+            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA['sort_order'  => $result['sort_order'],]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+        'markup'  => $result['markup'],
+				]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/model/catalog/category.php">
+        <operation>
+            <search index="0">
+                <![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "category SET parent_id = '" . (int)$data['parent_id'] . "', `top` = '" . (isset($data['top']) ? (int)$data['top'] : 0) . "', `column` = '" . (int)$data['column'] . "', sort_order = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "', date_modified = NOW(), date_added = NOW()");]]>
+            </search>
+            <add position="replace">
+                <![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "category SET parent_id = '" . (int)$data['parent_id'] . "', `top` = '" . (isset($data['top']) ? (int)$data['top'] : 0) . "', `column` = '" . (int)$data['column'] . "', sort_order = '" . (int)$data['sort_order'] . "', markup = '" . (int)$data['markup'] . "', status = '" . (int)$data['status'] . "', date_modified = NOW(), date_added = NOW()");]]>
+            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA[$this->db->query("UPDATE " . DB_PREFIX . "category SET parent_id = '" . (int)$data['parent_id'] . "', `top` = '" . (isset($data['top']) ? (int)$data['top'] : 0) . "', `column` = '" . (int)$data['column'] . "', sort_order = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "', date_modified = NOW() WHERE category_id = '" . (int)$category_id . "'");]]>
+            </search>
+            <add position="replace">
+                <![CDATA[$this->db->query("UPDATE " . DB_PREFIX . "category SET parent_id = '" . (int)$data['parent_id'] . "', `top` = '" . (isset($data['top']) ? (int)$data['top'] : 0) . "', `column` = '" . (int)$data['column'] . "', sort_order = '" . (int)$data['sort_order'] . "', markup = '" . (int)$data['markup'] . "', status = '" . (int)$data['status'] . "', date_modified = NOW() WHERE category_id = '" . (int)$category_id . "'");]]>
+            </add>
+        </operation>
+        <operation>
+            <search>
+                <![CDATA[$this->cache->delete('category');]]>
+            </search>
+            <add position="before">
+                <![CDATA[$this->cache->delete('product');]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/controller/common/header.php">
+        <operation>
+            <search index="0">
+                <![CDATA[$data['currency'] = $this->load->controller('common/currency');]]>
+            </search>
+            <add position="replace">
+                <![CDATA[$data['currency'] = "";]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/model/catalog/product.php">
+        <operation>
+            <search index="0">
+                <![CDATA[public function addProduct($data) {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+
+	public function getCategories($product_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
+
+		return $query->rows;
+	}
+
+	public function getCategoryMarkup($product_id)
+	{
+        $categoryMarkup = ['markup' => 0, 'category_id' =>0];
+
+		$this->load->model('catalog/category');
+
+		$categories = $this->getCategories($product_id);
+		if ($categories) {
+			foreach ($categories as $category) {
+				if (isset($category['main_category']) && $category['main_category']) break;
+			}
+
+			if ($category['category_id']) {
+				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category WHERE category_id = '" . (int)$category['category_id'] . "'");
+				$category = $query->row;
+				while (!$category['markup'] && (int)$category['parent_id']) {
+					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category WHERE category_id = '" . (int)$category['parent_id'] . "'");
+					$category = $query->row;
+				}
+			}
+		}
+        return $category && isset($category['category_id']) && $category['markup'] ? $category : $categoryMarkup;
+	}
+
+]]>
+            </add>
+        </operation>
+        <operation>
+            <search>
+                <![CDATA[$this->cache->delete('product');]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+if(isset($data['price'])){
+        $markupCategory = $this->getCategoryMarkup($product_id);
+		$rub_price = (float)$data['price'] + $markupCategory['markup'];
+
+        $min_price = (float) $this->getMinimumPrice($product_id) + $markupCategory['markup'];
+        $max_price = (float) $this->getMiximumPrice($product_id) + $markupCategory['markup'];
+        
+		$this->db->query("UPDATE " . DB_PREFIX . "product SET rub_price = '" . $rub_price . "', min_price = '" . $min_price . "', max_price = '" . $max_price . "' WHERE product_id = '" . (int)$product_id . "'");
+}
+		]]>
+            </add>
+        </operation>
+    </file>
+</modification>

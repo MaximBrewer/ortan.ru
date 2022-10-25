@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+   <name>Delete images All</name>
+   <code>delete_images_ocmod</code>
+   <version>2.x</version>
+   <link>https://ocmod.net</link>
+   <author>https://ocmod.net</author>
+
+	<file path="admin/model/catalog/product.php">
+		<operation error="skip">
+			<search ><![CDATA[
+		public function deleteProduct($product_id) {
+		]]></search>
+			<add position="replace"><![CDATA[
+	private function delete_image($path) {
+		if (isset($path)) {
+			$path = rtrim(DIR_IMAGE  . $path);
+
+			if (!file_exists($path)) {
+				$error= 1;
+			}
+
+			if ($path == rtrim(DIR_IMAGE . 'catalog/', '/')) {
+				$error = 1;
+			}
+		} else {
+			$error = 1;
+		}
+
+		if (!$this->user->hasPermission('modify', 'common/filemanager')) {
+      		$error = 1;  
+    	}
+
+		if (!isset($error)) {
+			if (is_file($path)) {
+				unlink($path);
+			} elseif (is_dir($path)) {
+				//$this->recursiveDelete($path);
+			}
+
+		}				
+
+	}
+
+	public function deleteProduct($product_id) {
+		
+	$query = $this->db->query("SELECT p.image FROM " . DB_PREFIX . "product p WHERE p.product_id = '" . (int)$product_id . "'");
+		
+		if($query->row){
+			$this->delete_image($query->row['image']);
+
+			$results = $this->getProductImages($product_id);
+
+			foreach ($results as $result) {
+				$this->delete_image($result['image']);
+			}
+		}
+	
+	]]></add>
+		</operation>
+	</file>	
+</modification>

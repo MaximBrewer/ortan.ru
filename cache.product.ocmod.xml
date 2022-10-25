@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Кеширование товаров</name>
+    <code>ortan-theme</code>
+    <version>1.0</version>
+    <author>https://pixelmax.com</author>
+    <link>https://pixelmax.com</link>
+    <file path="catalog/model/catalog/product.php">
+        <operation>
+            <search>
+                <![CDATA[public function getProduct($product_id) {]]>
+            </search>
+            <add position="after">
+                <![CDATA[$product_data = $this->cache->get('product_by_id.' . (int)$product_id . '.' . (int)$this->config->get('config_language_id') . '.' . (int)$this->config->get('config_store_id') . '.' . $this->config->get('config_customer_group_id'));
+
+                if (!empty($product_data)) { return $product_data; }]]>
+            </add>
+        </operation>
+        <operation>
+            <search position="0">
+                <![CDATA[return array(]]>
+            </search>
+            <add position="replace">
+                <![CDATA[$product_data = array(]]>
+            </add>
+        </operation>
+        <operation>
+            <search position="0">
+                <![CDATA[return false;]]>
+            </search>
+            <add position="after" offset="1">
+                <![CDATA[
+					$this->cache->set('product_by_id.' . (int)$product_id . '.' . (int)$this->config->get('config_language_id') . '.' . (int)$this->config->get('config_store_id') . '.' . $this->config->get('config_customer_group_id'), $product_data);
+                	return $product_data;
+                ]]>
+            </add>
+        </operation>
+        <operation>
+            <search position="0">
+                <![CDATA[return false;]]>
+            </search>
+            <add position="replace">
+                <![CDATA[$product_data = false;]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/model/catalog/product.php">
+        <operation>
+            <search>
+                <![CDATA[$this->cache->delete('product');]]>
+            </search>
+            <add position="after">
+                <![CDATA[if (isset($product_id)) $this->cache->delete('product_by_id.' . (int)$product_id);]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/model/catalog/category.php">
+        <operation>
+            <search>
+                <![CDATA[$this->cache->delete('product');]]>
+            </search>
+            <add position="after">
+                <![CDATA[if (isset($product_id)) $this->cache->delete('product_by_id.' . (int)$product_id);]]>
+            </add>
+        </operation>
+    </file>
+</modification>

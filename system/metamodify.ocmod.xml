@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Модификация метатегов</name>
+    <code>metamodify</code>
+    <version>1.0</version>
+    <author>https://pixelmax.com</author>
+    <link>https://pixelmax.com</link>
+    <file path="catalog/model/catalog/category.php">
+        <operation>
+            <search index="0">
+                <![CDATA[public function getCategoryFilters($category_id) {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+
+                public function getMinimumPriceFromCategory($category_id) {
+                    $query = $this->db->query("SELECT min(p.min_price) min_price FROM `" . DB_PREFIX . "category` c 
+                        RIGHT JOIN `" . DB_PREFIX . "product_to_category` p2c ON p2c.category_id = c.category_id 
+                        RIGHT JOIN `" . DB_PREFIX . "product` p ON p2c.product_id = p.product_id 
+                        WHERE c.category_id = ".$category_id." 
+                        AND p.status = 1 AND c.status = 1
+                    ");
+                    if ($query->num_rows) {
+                        return $query->row['min_price'];
+                    } else {
+                        return 0;
+                    }
+                }
+
+                public function getMaximumPriceFromCategory($category_id) {
+                    $query = $this->db->query("SELECT max(p.max_price) max_price FROM `" . DB_PREFIX . "category` c 
+                        RIGHT JOIN `" . DB_PREFIX . "product_to_category` p2c ON p2c.category_id = c.category_id 
+                        RIGHT JOIN `" . DB_PREFIX . "product` p ON p2c.product_id = p.product_id 
+                        WHERE c.category_id = ".$category_id." 
+                        AND p.status = 1 AND c.status = 1
+                    ");
+                    if ($query->num_rows) {
+                        return $query->row['max_price'];
+                    } else {
+                        return 0;
+                    }
+                }
+
+                ]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/model/catalog/product.php">
+        <operation>
+            <search index="0">
+                <![CDATA[public function addProduct($data) {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+                public function getMinimumPrice($product_id) {
+                    $query = $this->db->query("SELECT (
+							LEAST(
+								p.price, 
+								IFNULL(ps.price, p.price), 
+								IFNULL(pd.price, p.price)
+							) + (
+								IFNULL((SELECT min(concat(price_prefix,price)*1) FROM `" . DB_PREFIX . "product_option_value` pov WHERE pov.`product_option_id`=po.`product_option_id`),0)
+							)
+						) min_price
+                        FROM `" . DB_PREFIX . "product` p
+                        LEFT JOIN `" . DB_PREFIX . "product_special` ps 
+                        ON p.product_id = ps.product_id 
+                        AND (ps.date_end = '0000-00-00' OR ps.date_end >= NOW())
+                        AND (ps.date_start = '0000-00-00' OR ps.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_discount` pd 
+                        ON p.product_id = pd.product_id 
+                        AND (pd.date_end = '0000-00-00' OR pd.date_end >= NOW())
+                        AND (pd.date_start = '0000-00-00' OR pd.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_option` po 
+                        ON p.product_id = po.product_id 
+                        WHERE p.product_id = ".$product_id." 
+                        AND p.status = 1
+                    ");
+                    if ($query->num_rows) {
+                        return $query->row['min_price'];
+                    } else {
+                        return 0;
+                    }
+                }
+
+                public function getMiximumPrice($product_id) {
+                    $query = $this->db->query("SELECT (
+							GREATEST(
+								p.price, 
+								IFNULL(ps.price, p.price), 
+								IFNULL(pd.price, p.price)
+							) + (
+								IFNULL((SELECT max(concat(price_prefix,price)*1) FROM `" . DB_PREFIX . "product_option_value` pov WHERE pov.`product_option_id`=po.`product_option_id`),0)
+							)
+                        ) max_price
+                        FROM `" . DB_PREFIX . "product` p
+                        LEFT JOIN `" . DB_PREFIX . "product_special` ps 
+                        ON p.product_id = ps.product_id 
+                        AND (ps.date_end = '0000-00-00' OR ps.date_end >= NOW())
+                        AND (ps.date_start = '0000-00-00' OR ps.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_discount` pd 
+                        ON p.product_id = pd.product_id 
+                        AND (pd.date_end = '0000-00-00' OR pd.date_end >= NOW())
+                        AND (pd.date_start = '0000-00-00' OR pd.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_option` po 
+                        ON p.product_id = po.product_id 
+                        WHERE p.product_id = ".$product_id." 
+                        AND p.status = 1
+                    ");
+                    if ($query->num_rows) {
+                        return $query->row['max_price'];
+                    } else {
+                        return 0;
+                    }
+                }
+                ]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/model/catalog/product.php">
+        <operation>
+            <search index="0">
+                <![CDATA[public function getTotalProductSpecials() {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+                public function getMinimumPrice($product_id) {
+                    $query = $this->db->query("SELECT (
+							LEAST(
+								p.price, 
+								IFNULL(ps.price, p.price), 
+								IFNULL(pd.price, p.price)
+							) + (
+								IFNULL((SELECT min(concat(price_prefix,price)*1) FROM `" . DB_PREFIX . "product_option_value` pov WHERE pov.`product_option_id`=po.`product_option_id`),0)
+							)
+						) min_price
+                        FROM `" . DB_PREFIX . "product` p
+                        LEFT JOIN `" . DB_PREFIX . "product_special` ps 
+                        ON p.product_id = ps.product_id 
+                        AND (ps.date_end = '0000-00-00' OR ps.date_end >= NOW())
+                        AND (ps.date_start = '0000-00-00' OR ps.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_discount` pd 
+                        ON p.product_id = pd.product_id 
+                        AND (pd.date_end = '0000-00-00' OR pd.date_end >= NOW())
+                        AND (pd.date_start = '0000-00-00' OR pd.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_option` po 
+                        ON p.product_id = po.product_id 
+                        WHERE p.product_id = ".$product_id." 
+                        AND p.status = 1
+                    ");
+                    if ($query->num_rows) {
+                        return $query->row['min_price'];
+                    } else {
+                        return 0;
+                    }
+                }
+
+                public function getMiximumPrice($product_id) {
+                    $query = $this->db->query("SELECT (
+							GREATEST(
+								p.price, 
+								IFNULL(ps.price, p.price), 
+								IFNULL(pd.price, p.price)
+							) + (
+								IFNULL((SELECT max(concat(price_prefix,price)*1) FROM `" . DB_PREFIX . "product_option_value` pov WHERE pov.`product_option_id`=po.`product_option_id`),0)
+							)
+                        ) max_price
+                        FROM `" . DB_PREFIX . "product` p
+                        LEFT JOIN `" . DB_PREFIX . "product_special` ps 
+                        ON p.product_id = ps.product_id 
+                        AND (ps.date_end = '0000-00-00' OR ps.date_end >= NOW())
+                        AND (ps.date_start = '0000-00-00' OR ps.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_discount` pd 
+                        ON p.product_id = pd.product_id 
+                        AND (pd.date_end = '0000-00-00' OR pd.date_end >= NOW())
+                        AND (pd.date_start = '0000-00-00' OR pd.date_start <= NOW())
+                        LEFT JOIN `" . DB_PREFIX . "product_option` po 
+                        ON p.product_id = po.product_id 
+                        WHERE p.product_id = ".$product_id." 
+                        AND p.status = 1
+                    ");
+                    if ($query->num_rows) {
+                        return $query->row['max_price'];
+                    } else {
+                        return 0;
+                    }
+                }
+                ]]>
+            </add>
+        </operation>
+    </file>
+</modification>

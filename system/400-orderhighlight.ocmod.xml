@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Подсветка новых заказов</name>
+    <code>orderhighlight</code>
+    <version>1.0</version>
+    <author>https://pixelmax.com</author>
+    <link>https://pixelmax.com</link>
+    <file path="admin/view/template/sale/order_list.tpl">
+        <operation>
+            <search index="1">
+                <![CDATA[<tr>]]>
+            </search>
+            <add position="replace">
+                <![CDATA[
+
+                <?php if($order['order_status_id'] == 1) {
+                  ?><tr style="background-color: #ccffcc;"><?php 
+                } else { 
+                  ?><tr><?php
+                } ?>  
+                
+                ]]>
+            </add>
+        </operation>
+        <operation>
+            <search index="0">
+                <![CDATA[<td class="text-left"><?php echo $order['customer']; ?></td>]]>
+            </search>
+            <add position="replace">
+                <![CDATA[<td class="text-left"><?php echo $order['customer']; ?><br/><a href="mailto:<?php echo $order['email']; ?>"><?php echo $order['email']; ?></a></td>]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/model/sale/order.php">
+        <operation>
+            <search index="0">
+                <![CDATA[$sql = "SELECT o.order_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS order_status, o.shipping_code, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified FROM `" . DB_PREFIX . "order` o";]]>
+            </search>
+            <add position="replace">
+                <![CDATA[$sql = "SELECT o.order_id, o.order_status_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS order_status, o.shipping_code, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified FROM `" . DB_PREFIX . "order` o";]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/controller/sale/order.php">
+        <operation>
+            <search index="0">
+                <![CDATA[$data['orders'][] = array(]]>
+            </search>
+            <add position="after">
+                <![CDATA['order_status_id' => $result['order_status_id'],]]>
+            </add>
+        </operation>
+    </file>
+</modification>
