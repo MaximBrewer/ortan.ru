@@ -396,6 +396,7 @@
   }
   .nav__list {
     flex-wrap: wrap;
+	    margin-bottom: 40px;
   }
   .catalog__filter {
     width: 100%;

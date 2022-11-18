@@ -1,5 +1,10 @@
 <?php
 class ModelCatalogReview extends Model {
+
+	public function activate ($review_id) {
+		$this->db->query("UPDATE " . DB_PREFIX . "review SET status = 1 WHERE review_id = $review_id");
+	}
+
 	public function addReview($product_id, $data) {
 		$this->db->query("INSERT INTO " . DB_PREFIX . "review SET author = '" . $this->db->escape($data['name']) . "', customer_id = '" . (int)$this->customer->getId() . "', product_id = '" . (int)$product_id . "', text = '" . $this->db->escape($data['text']) . "', rating = '" . (int)$data['rating'] . "', date_added = NOW()");
 
@@ -46,6 +51,7 @@ class ModelCatalogReview extends Model {
 				}
 			}
 		}
+		return $review_id;
 	}
 
 	public function getReviewsByProductId($product_id, $start = 0, $limit = 20) {

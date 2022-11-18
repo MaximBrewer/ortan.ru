@@ -1,5 +1,5 @@
 <?php echo $header; ?>
-
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <div class="breadcrumbs">
   <div class="container">
     <ul class="breadcrumbs__list">
@@ -9,7 +9,7 @@
     </ul>
   </div>
 </div>
-<section class="review ordering">
+<section class="review ordering" x-data="xData">
   <div class="review__container container">
     <div class="review__summary">
       <div class="flex-vc">
@@ -109,7 +109,7 @@
 
 
       <?php if ($logged) : ?>
-        <button type="button" class="btn review__btn review-answer-button" data-value="" data-product="6507">ОСТАВИТЬ ОТЗЫВ</button>
+        <button type="button" class="btn review__btn review-answer-button" x-on:click="show=true">ОСТАВИТЬ ОТЗЫВ</button>
       <?php else : ?>
         <a href="/login/" class="btn review__btn">ОСТАВИТЬ ОТЗЫВ</a>
       <?php endif; ?>
@@ -117,7 +117,60 @@
 
     </div>
 
-    <div class="review-answer-container" id="review_answer_container<?php echo $review['review_id']; ?>"></div>
+    <div class="review-answer-container" id="review_answer_container<?php echo $review['review_id']; ?>">
+      <template x-if="success">
+        <p class="success" x-text="success"></p>
+      </template>
+      <div class="ex-hidden" id="hidden-popups" x-bind:style="show ? {display:'block'} : {display:'none'}">
+        <form class="form-horizontal" id="form-answer-review" x-ref="form" x-on:submit.prevent="sendReview" action="index.php?route=product/extended_reviews/write" method="POST">
+          <input type="hidden" name="rating" x-model="rating" />
+          <input type="hidden" x-model="product_id" name="product_id" />
+
+          <div class="autocomplete-wr">
+            <label class="control-label" for="input-review">Товар</label>
+            <template x-if="product_name">
+              <strong x-text="product_name"></strong>
+            </template>
+            <input type="text" name="filter_name" value="" placeholder="Наименование" x-model="query" class="form-control" autocomplete="off">
+            <small>Начните ввод и выберите из выпадающего списка</small>
+            <template x-if="products.length">
+              <div class="p-list">
+                <template x-for="p in products">
+                  <div class="border-b px-2 py-2" x-text="p.name" x-on:click="product_id=p.product_id;product_name=p.name;query=''"> </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <div class="flex">
+            <?php for ($i = 1; $i < 6; $i++) : ?>
+              <div class="mr-1 w-7.5 h-7.5 cursor-pointer" x-bind:class="hoverRating < <?php echo $i; ?> ? 'text-gray' : 'text-gold'" x-on:mouseover="hoverRating=<?php echo $i; ?>" x-on:click="rating=<?php echo $i; ?>">
+                <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36">
+                  <path fill="currentColor" d="M17.1 5.4 13.9 14l-9.2.3c-1.3.1-1.3 1.2-.6 1.8l7.2 5.7-2.5 8.8c-.4 1.1.7 1.6 1.5 1.1l7.6-5.1 7.6 5.1c.6.4 1.8.2 1.5-1.1l-2.5-8.8 7.2-5.7c.8-.7.8-1.7-.6-1.8l-9-.3L19 5.4c-.5-1.1-1.5-1.1-1.9 0z" />
+                </svg>
+              </div>
+            <?php endfor; ?>
+          </div>
+
+          <div class="ex-form">
+            <label class="control-label" for="input-review"><?php echo $text_comment; ?></label>
+            <textarea name="text" rows="5" id="input-answer-review" class="form-control"></textarea>
+          </div>
+          <div class="ex-form">
+            <label class="control-label" for="input-name"><?php echo $entry_name; ?></label>
+            <input type="text" name="name" value="<?php echo $customer_name; ?>" id="input-answer-name" class="form-control" />
+          </div>
+          <?php echo $captcha; ?>
+          <template x-if="error">
+            <p class="error" x-text="error"></p>
+          </template>
+          <div class="ex-form-buttons">
+            <button type="button" x-on:click="show=false" class="ex-btn ex-cancel"><?php echo $text_cancel; ?></button>
+            <button type="submit" class="opbtn__buy btn" id="button-answer-review" data-loading-text="<?php echo $text_loading; ?>"><?php echo $leave_feedback; ?></button>
+          </div>
+        </form>
+      </div>
+    </div>
     <div class="review__top comparison__top">
       <?php if ($heading_title) { ?>
         <h1 class="comparison__heading innerHeading"><?php echo $heading_title; ?></h1>
@@ -212,164 +265,22 @@
 
 
 
-<?php /* if ($reviews) { ?>
-  <div class="ex-reviews-box">
-    <div class="ex-reviews-stack">
-      <?php foreach ($reviews as $_key => $review) { ?>
-        <div class="review-container">
-          <div class="review-inner-container">
-            <div class="ex-caption">
-              <div class="review-title-container">
-                <?php if ($review['purchased']) { ?>
-                  <span class='allready-buy' data-toggle="tooltip" title="<?php echo $text_already_buy; ?>"><svg class="ex-cart-svg">
-                      <use xlink:href="#ex-cart"></use>
-                    </svg></span>
-                <?php } ?>
-                <div class="review-author">
-                  <span class="review-author-name"><?php echo $review['author']; ?></span>
-                </div>
-                <div class="review-rating-change-buttons">
-                  <button class="review-vote review-vote-positive" data-value="<?php echo $review['review_id']; ?>">
-                    <svg class="ex-like">
-                      <use xlink:href="#ex-thumb"></use>
-                    </svg>
-                    <span class="review-vote-count" data-value="<?php echo $review['likes']; ?>" id="vote_count_positive-<?php echo $review['review_id']; ?>"><?php echo (($review['likes'] > 0) ? ($review['likes']) : ('0')); ?></span>
-                  </button>
-                  <button class="review-vote review-vote-negative" data-value="<?php echo $review['review_id']; ?>">
-                    <svg class="ex-like ex-dislike">
-                      <use xlink:href="#ex-thumb"></use>
-                    </svg>
-                    <span class="review-vote-count" data-value="<?php echo $review['dislikes']; ?>" id="vote_count_negative-<?php echo $review['review_id']; ?>"><?php echo (($review['dislikes'] > 0) ? ($review['dislikes']) : ('0')); ?></span>
-                  </button>
-                </div>
-              </div>
-              <div class="rating-container">
-                <?php if ($review['rating'] != 0) { ?>
-                  <?php $i = 1; ?>
-                  <?php foreach (range($i, 5) as $_key => $i) { ?>
-                    <?php if ($review['rating'] < $i) { ?>
-                      <svg class="ex-star ex-star-grey">
-                        <use xlink:href="#ex-star"></use>
-                      </svg>
-                    <?php } else { ?>
-                      <svg class="ex-star">
-                        <use xlink:href="#ex-star"></use>
-                      </svg>
-                    <?php } ?>
-                  <?php } ?>
-                <?php } ?>
-              </div>
-              <div class="review-text-container">
-                <div class="ex-comment-text">
-                  <?php echo $review['text']; ?>
-                  <?php if (isset($settings['limitations'])) { ?>
-                    <?php if ($review['plus']) { ?>
-                      </span>
-                      <div class='ex-plus'><?php echo $text_plus; ?> </div>
-                      <?php echo $review['plus']; ?>
-                    <?php } ?>
-                    <?php if ($review['minus']) { ?>
-                      <div class='ex-minus'><?php echo $text_minus; ?> </div><span><?php echo $review['minus']; ?>
-                        </p>
-                      <?php } ?>
-                    <?php } ?>
-                </div>
-              </div>
-              <?php if ((isset($settings['photo_status']) || isset($settings['video_status']))) { ?>
-                <div class="review-media-container">
-                  <?php if ($settings['photo_status']) { ?>
-                    <?php if ($review['images']) { ?>
-                      <div class="ex-drag ex-photo-thumbnails">
-                        <?php foreach ($review['images'] as $_key => $image) { ?>
-                          <div class="ex-image-additional"><a class="ex-thumbnail" <?php echo (isset($settings['fancy']) ? ('data-fancybox="reviews-gallery"') : ('')); ?> href="<?php echo $image['popup']; ?>" title="<?php echo $review['prod_name']; ?>"> <img src="<?php echo $image['thumb']; ?>" title="<?php echo $review['prod_name']; ?>" alt="<?php echo $review['prod_name']; ?>" class="<?php echo (($image['type'] == '0') ? ('image-crop') : ('imgbb')); ?>" /></a>
-                          </div>
-                        <?php } ?>
-                      </div>
-                    <?php } ?>
-                  <?php } ?>
-                  <?php if ($settings['video_status']) { ?>
-                    <?php if ($review['videos']) { ?>
-                      <div class="ex-drag ex-video-thumbnails">
-                        <?php foreach ($review['videos'] as $_key => $video) { ?>
-                          <div class="ex-video-thumbnail"><a <?php echo (isset($settings['fancy']) ? ('data-fancybox') : ('')); ?> class="popup-youtube" href="https://www.youtube.com/watch?v=<?php echo $video; ?>?autoplay=1&rel=0"><img src="//img.youtube.com/vi/<?php echo $video; ?>/mqdefault.jpg" alt="" class="youtube-click"><svg class="ex-youtube-svg">
-                                <use xlink:href="#ex-youtube"></use>
-                              </svg></a></div>
-                        <?php } ?>
-                      </div>
-                    <?php } ?>
-                  <?php } ?>
-                </div>
-              <?php } ?>
-              <div class="review-container-footer">
-                <?php if (isset($settings['answer'])) { ?>
-                  <button type="button" class="ex-btn ex-light review-answer-button" data-value="<?php echo $review['review_id']; ?>" data-product="<?php echo $review['product_id']; ?>"><svg class="ex-reply-svg">
-                      <use xlink:href="#ex-reply"></use>
-                    </svg> <?php echo $text_reply; ?></button>
-                <?php } ?>
-                <div class="review-date"><?php echo $review['date_added']; ?></div>
-                <div class="review_note" id="review-note-<?php echo $review['review_id']; ?>"></div>
-              </div>
-              <div class="review-answer-container" id="review_answer_container<?php echo $review['review_id']; ?>"></div>
-
-            </div>
-          </div>
-          <?php if ($review['admin_reply'] || $review['children_reviews']) { ?>
-            <div class="review-childrens-container">
-              <?php if ($review['admin_reply']) { ?>
-                <div class="review-answer-title-container">
-                  <div class="review-author">
-                    <span class="review-author-name review-admin-name"><?php echo $review['admin_name']; ?></span>
-                    <svg data-toggle="tooltip" data-original-title="<?php echo $text_admin_answer; ?>" class="ex-check-svg">
-                      <use xlink:href="#ex-check"></use>
-                    </svg>
-                  </div>
-                </div>
-                <div class="review-text-container">
-                  <div class="ex-comment-text">
-                    <p><?php echo $review['admin_reply']; ?></p>
-                  </div>
-                </div>
-              <?php } ?>
-              <?php if ($review['children_reviews']) { ?>
-                <?php foreach ($review['children_reviews'] as $_key => $children_review) { ?>
-                  <div class="children-review-container">
-                    <div class="review-answer-title-container">
-                      <div class="review-author"><span class="review-author-name"><?php echo $children_review['author']; ?></span>
-                      </div>
-                    </div>
-                    <div class="review-text-container">
-                      <div class="ex-comment-text">
-                        <p><?php echo $children_review['text']; ?></p>
-                      </div>
-                    </div>
-                    <div class="review-date"><?php echo $children_review['date_added']; ?></div>
-                  </div>
-                <?php } ?>
-              <?php } ?>
-            </div>
-          <?php } ?>
-        </div>
-      <?php } ?>
-      <?php if (isset($more)) { ?>
-        <div class="text-center show-more-block">
-          <button class="show-more-button" id="show-more" onclick="showMore('<?php echo $more; ?>')"><svg class="ex-more-svg">
-              <use xlink:href="#ex-more"></use>
-            </svg> <?php echo $more_text; ?></button>
-        </div>
-      <?php } ?>
-      <?php if (isset($pagination)) { ?>
-        <div class="pagination-block text-right"><?php echo $pagination; ?></div>
-      <?php } ?>
-    </div>
-  </div>
-<?php } else { ?>
-  <p><?php echo $text_empty; ?></p>
-<?php } */ ?>
 
 <!-- media-add-popup -->
-<div class="ex-hidden" id="hidden-popups">
+<div class="ex-hidden" id="hidden-popups" x-bind:class="">
   <form class="form-horizontal" id="form-answer-review">
-    <input type="hidden" value="5" name="rating" />
+    <input type="hidden" value="5" name="rating" x-model="rating" />
+
+    <div class="flex">
+      <?php for ($i = 1; $i < 6; $i++) : ?>
+        <div class="mr-1 w-7.5 h-7.5 cursor-pointer" x-bind:class="hoverRating < <?php echo $i; ?> ? 'text-gray' : 'text-gold'" x-on:mouseover="hoverRating=<?php echo $i; ?>" x-on:click="rating=<?php echo $i; ?>">
+          <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36">
+            <path fill="currentColor" d="M17.1 5.4 13.9 14l-9.2.3c-1.3.1-1.3 1.2-.6 1.8l7.2 5.7-2.5 8.8c-.4 1.1.7 1.6 1.5 1.1l7.6-5.1 7.6 5.1c.6.4 1.8.2 1.5-1.1l-2.5-8.8 7.2-5.7c.8-.7.8-1.7-.6-1.8l-9-.3L19 5.4c-.5-1.1-1.5-1.1-1.9 0z" />
+          </svg>
+        </div>
+      <?php endfor; ?>
+    </div>
+
     <div class="ex-form">
       <label class="control-label" for="input-review"><?php echo $text_comment; ?></label>
       <textarea name="text" rows="5" id="input-answer-review" class="form-control"></textarea>
@@ -410,124 +321,78 @@
 </script>
 
 <script>
-  // document.addEventListener('DOMContentLoaded', function() {
-  //   var product_id;
-  //   var review_id;
-  //   var note_block;
-  //   var form = $('#form-answer-review');
-  //   $(document).on('click', '.review-answer-button', function() {
-  //     alertRemove()
-  //     review_id = $(this).data("value");
-  //     product_id = $(this).data("product");
-  //     var block = $('#review_answer_container' + review_id);
-  //     note_block = $("#review-note-" + review_id);
-  //     <?php if ($answer_guest) { ?>
-  //       if (!$(block).children(form).length > 0) {
-  //         $(form).hide().appendTo(block).slideDown(300);
-  //       }
-  //     <?php } else { ?>
-  //       $(note_block).append('<div class="ex-alert alert-danger m-0"><i class="fa fa-exclamation-circle"></i> <?php echo $text_login; ?></div>');
-  //     <?php } ?>
-  //   });
-  //   $('#review-cancel-button').on('click', function() {
-  //     alertRemove()
-  //     var block = $('#hidden-popups');
-  //     $(form).slideUp(200).delay(300).queue(function(next) {
-  //       $(this).appendTo(block);
-  //       next();
-  //     });
-  //   });
-  //   $('#button-answer-review').on('click', function() {
-  //     alertRemove()
-  //     var form = $('#form-answer-review');
-  //     var btn = $(this);
-  //     btn.button('loading');
-  //     $.ajax({
-  //       url: 'index.php?route=product/extended_reviews/writeAnswer&product_id=' + product_id + '&parent_id=' + review_id,
-  //       type: 'post',
-  //       dataType: 'json',
-  //       data: $(form).serialize(),
-  //       success: function(json) {
-  //         if (json['error']) {
-  //           $(note_block).append('<div class="ex-alert alert-danger"> ' + json['error'] + '</div>');
-  //           btn.button('reset');
-  //         }
-  //         if (json['success']) {
-  //           $('input[name=\'name\']').val('');
-  //           $('textarea[name=\'text\']').val('');
-  //           $('#review-cancel-button').click();
-  //           $(note_block).append('<div class="ex-alert alert-success m-0"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
-  //           btn.button('reset');
-  //         }
-  //       }
-  //     });
-  //   });
-  //   $(document).on('click', '.review-vote-negative', function() {
-  //     alertRemove()
-  //     var id = $(this).data("value");
-  //     var votename = "vote" + id;
-  //     var note_block = $("#review-note-" + id);
-  //     <?php if ($likes_guest) { ?>
-  //       if (localStorage.getItem(votename) == null) {
-  //         var vote_count_span = $('#vote_count_negative-' + id);
-  //         var vote_count = parseInt(vote_count_span.data("value"));
-  //         $.ajax({
-  //           url: 'index.php?route=product/extended_reviews/minusReviewRating',
-  //           type: 'post',
-  //           data: {
-  //             review_id: id
-  //           },
-  //           dataType: 'json',
-  //           success: function(json) {
-  //             if (json['success']) {
-  //               $(vote_count_span).text(vote_count + 1);
-  //               localStorage.setItem(votename, true);
-  //             }
-  //           }
-  //         });
-  //         $(note_block).append('<div class="ex-alert alert-success m-0"><i class="fa fa-check" aria-hidden="true"></i>&nbsp; <?php echo $thank_for_rating; ?></div>');
-  //       } else {
-  //         $(note_block).append('<div class="ex-alert alert-warning m-0"><?php echo $already_rating; ?></div>');
-  //       }
-  //     <?php } else { ?>
-  //       $(note_block).append('<div class="ex-alert alert-info m-0"><i class="fa fa-exclamation" aria-hidden="true"></i>&nbsp; <?php echo $text_login; ?></div>');
-  //     <?php } ?>
-  //   });
-  //   $(document).on('click', '.review-vote-positive', function() {
-  //     alertRemove()
-  //     var id = $(this).data("value");
-  //     var votename = "vote" + id;
-  //     var note_block = $("#review-note-" + id);
-  //     <?php if ($likes_guest) { ?>
-  //       if (localStorage.getItem(votename) == null) {
-  //         var vote_count_span = $('#vote_count_positive-' + id);
-  //         var vote_count = parseInt(vote_count_span.data("value"));
-  //         $.ajax({
-  //           url: 'index.php?route=product/extended_reviews/plusReviewRating',
-  //           type: 'post',
-  //           data: {
-  //             review_id: id
-  //           },
-  //           dataType: 'json',
-  //           success: function(json) {
-  //             $('.success-note').remove();
-  //             if (json['success']) {
-  //               $(vote_count_span).text(vote_count + 1);
-  //               localStorage.setItem(votename, true);
-  //             }
-  //           }
-  //         });
-  //         $(note_block).append('<div class="ex-alert alert-success m-0"><i class="fa fa-check" aria-hidden="true"></i>&nbsp; <?php echo $thank_for_rating; ?></div>');
-  //       } else {
-  //         $(note_block).append('<div class="ex-alert alert-warning m-0"><?php echo $already_rating; ?></div>');
-  //       }
-  //     <?php } else { ?>
-  //       $(note_block).append('<div class="ex-alert alert-info m-0"><i class="fa fa-exclamation" aria-hidden="true"></i>&nbsp; <?php echo $text_login; ?></div>');
-  //     <?php } ?>
-  //   });
-  // });
+
 </script>
 <script>
+  var xData = {
+    rating: 5,
+    hoverRating: 5,
+    show: false,
+    query: '',
+    error: '',
+    success: '',
+    product_name: '',
+    product_id: '',
+    products: [],
+    timeout: 0,
+    sendReview() {
+      var that = this;
+      if (!this.product_id) {
+        this.error = 'Необходимо выбрать товар!';
+        return
+      }
+      jQuery.ajax({
+          processData: false,
+          contentType: false,
+          method: "POST",
+          url: this.$refs.form.action + '&product_id=' + this.product_id,
+          data: new FormData(this.$refs.form)
+        })
+        .done(function(data) {
+          if (data.error) that.error = data.error
+          else {
+            that.product_name = ''
+            that.product_id = ''
+            that.products = []
+            that.query = ''
+            that.show = false
+            that.$refs.form.reset()
+            that.success = data.success
+            setTimeout(function(){
+              location.reload()
+            }, 1500)
+          }
+        })
+    },
+    autocomplete(query) {
+      var that = this;
+      if (!query || query.length < 3) {
+        that.products = [];
+        this.error = ''
+        return
+      }
+      clearTimeout(timeout)
+      var timeout = setTimeout(function() {
+        jQuery.ajax({
+            method: "GET",
+            url: '/index.php?route=product/product/autocomplete',
+            data: {
+              filter_name: query
+            }
+          })
+          .done(function(data) {
+            that.products = data
+          })
+      }, 1000)
+    },
+    init() {
+      var that = this;
+      this.$watch('query', function(value) {
+        that.autocomplete(value)
+      })
+    },
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     $('.filter__input').on('change', function() {
       var r = [];
@@ -540,123 +405,7 @@
       url.searchParams.set('rating', r.join(','))
       window.location.href = url.href
     })
-    var product_id;
-    var review_id;
-    var note_block;
-    var form = $('#form-answer-review');
-    $(document).on('click', '.review-answer-button', function() {
-      alertRemove()
-      review_id = $(this).data("value");
-      product_id = $(this).data("product");
-      var block = $('#review_answer_container' + review_id);
-      note_block = $("#review-note-" + review_id);
-      <?php if (true || $answer_guest) { ?>
-        if (!$(block).children(form).length > 0) {
-          $(form).hide().appendTo(block).slideDown(300);
-        }
-      <?php } else { ?>
-        $(note_block).append('<div class="ex-alert alert-danger m-0"><i class="fa fa-exclamation-circle"></i> <?php echo $text_login; ?></div>');
-      <?php } ?>
-    });
 
-    $('#review-cancel-button').on('click', function() {
-      alertRemove()
-      var block = $('#hidden-popups');
-      $(form).slideUp(200).delay(300).queue(function(next) {
-        $(this).appendTo(block);
-        next();
-      });
-    });
-
-    $('#button-answer-review').on('click', function() {
-      alertRemove()
-      var form = $('#form-answer-review');
-      var btn = $(this);
-      btn.button('loading');
-      $.ajax({
-        // url: 'index.php?route=product/extended_reviews/writeAnswer&product_id=' + product_id + '&parent_id=' + review_id,
-        url: 'index.php?route=product/extended_reviews/write&product_id=' + product_id,
-        type: 'post',
-        dataType: 'json',
-        data: $(form).serialize(),
-        success: function(json) {
-          if (json['error']) {
-            $(note_block).append('<div class="ex-alert alert-danger"> ' + json['error'] + '</div>');
-            btn.button('reset');
-          }
-          if (json['success']) {
-            $('input[name=\'name\']').val('');
-            $('textarea[name=\'text\']').val('');
-            $('#review-cancel-button').click();
-            $(note_block).append('<div class="ex-alert alert-success m-0"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
-            btn.button('reset');
-          }
-        }
-      });
-    });
-    $(document).on('click', '.review-vote-negative', function() {
-      alertRemove()
-      var id = $(this).data("value");
-      var votename = "vote" + id;
-      var note_block = $("#review-note-" + id);
-      <?php if ($likes_guest) { ?>
-        if (localStorage.getItem(votename) == null) {
-          var vote_count_span = $('#vote_count_negative-' + id);
-          var vote_count = parseInt(vote_count_span.data("value"));
-          $.ajax({
-            url: 'index.php?route=product/extended_reviews/minusReviewRating',
-            type: 'post',
-            data: {
-              review_id: id
-            },
-            dataType: 'json',
-            success: function(json) {
-              if (json['success']) {
-                $(vote_count_span).text(vote_count + 1);
-                localStorage.setItem(votename, true);
-              }
-            }
-          });
-          $(note_block).append('<div class="ex-alert alert-success m-0"><i class="fa fa-check" aria-hidden="true"></i>&nbsp; <?php echo $thank_for_rating; ?></div>');
-        } else {
-          $(note_block).append('<div class="ex-alert alert-warning m-0"><?php echo $already_rating; ?></div>');
-        }
-      <?php } else { ?>
-        $(note_block).append('<div class="ex-alert alert-info m-0"><i class="fa fa-exclamation" aria-hidden="true"></i>&nbsp; <?php echo $text_login; ?></div>');
-      <?php } ?>
-    });
-    $(document).on('click', '.review-vote-positive', function() {
-      alertRemove()
-      var id = $(this).data("value");
-      var votename = "vote" + id;
-      var note_block = $("#review-note-" + id);
-      <?php if ($likes_guest) { ?>
-        if (localStorage.getItem(votename) == null) {
-          var vote_count_span = $('#vote_count_positive-' + id);
-          var vote_count = parseInt(vote_count_span.data("value"));
-          $.ajax({
-            url: 'index.php?route=product/extended_reviews/plusReviewRating',
-            type: 'post',
-            data: {
-              review_id: id
-            },
-            dataType: 'json',
-            success: function(json) {
-              $('.success-note').remove();
-              if (json['success']) {
-                $(vote_count_span).text(vote_count + 1);
-                localStorage.setItem(votename, true);
-              }
-            }
-          });
-          $(note_block).append('<div class="ex-alert alert-success m-0"><i class="fa fa-check" aria-hidden="true"></i>&nbsp; <?php echo $thank_for_rating; ?></div>');
-        } else {
-          $(note_block).append('<div class="ex-alert alert-warning m-0"><?php echo $already_rating; ?></div>');
-        }
-      <?php } else { ?>
-        $(note_block).append('<div class="ex-alert alert-info m-0"><i class="fa fa-exclamation" aria-hidden="true"></i>&nbsp; <?php echo $text_login; ?></div>');
-      <?php } ?>
-    });
   });
 </script>
 <style type="text/css">
@@ -786,6 +535,31 @@
     .review-childrens-container {
       margin-left: <?php echo $settings['product_thumb_width']; ?>px;
     }
+  }
+
+  .autocomplete-wr {
+    display: flex;
+    flex-direction: column;
+
+  }
+
+  .autocomplete-wr .p-list {
+    border: 1px solid #323031;
+    border-radius: 2px;
+    max-height: 300px;
+    overflow-y: auto;
+    color: #000;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .autocomplete-wr .p-list>div {
+    padding: .375rem .5rem;
+    cursor: pointer
+  }
+
+  .autocomplete-wr .p-list>div:hover {
+    background-color: #d9d9d9;
   }
 </style>
 <div style="position: absolute;	left: -9999px;">

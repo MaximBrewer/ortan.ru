@@ -57,6 +57,7 @@ class ModelExtensionModuleBitrix24 extends Model
 
         $info = '';
         $infoProd = '';
+        $infoProd2 = ''; //для поля "для рассылок". без ссылки на товар в админке
         $aProducts = $this->get_products($order_info);
 
         $aProductRows = [];
@@ -79,8 +80,11 @@ class ModelExtensionModuleBitrix24 extends Model
             if ($options) {
                 $name .= '('.$options.')';
             }
-            $prod = $product['quantity'] . ' шт. - ' . $product['rub_price'] . ' - <a href="' . $product['href'] . '">' . $name . '</a>';
+            $prod = $product['quantity'] . ' шт. - ' . $product['rub_price'] . ' - <a href="' . $product['href'] . '">' . $name . '</a>' . ' - <a href="' . $product['location'] . '">Поставщик</a>';
+            $prod2 = $product['quantity'] . ' шт. - ' . $product['rub_price']  . $name ;
             $infoProd .= ($infoProd ? '<br>' : '') . $prod;
+            $infoProd2 .= ($infoProd2 ? '
+			 ' : '') . $prod2;
 
             if (!$product['bitrix_id']){
                 $product['bitrix_id'] = $this->export_product($product['product_id']);
@@ -139,6 +143,7 @@ class ModelExtensionModuleBitrix24 extends Model
                 "UF_CRM_1661267509629" => $address,
                 "UF_CRM_1661267716779" => $comment,
                 "UF_CRM_1661267846592" => $isPayed,
+                "UF_CRM_1666187862716" => $infoProd2,
 
                 //Дополнительные поля СДЕЛКА
                 "UF_CRM_1650633976280" => $order_id,
@@ -601,7 +606,7 @@ class ModelExtensionModuleBitrix24 extends Model
         $customer_group = 1;
         $order_product_query = $this->db->query("SELECT op.*, ov.bitrix_id ov_bitrix_id,
             (SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . (int)$customer_group . "' AND ((ps.date_start = '0000-00-00' OR ps.date_start < NOW()) AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special,
-            p.bitrix_id FROM " . DB_PREFIX . "order_product op
+            p.bitrix_id, p.location FROM " . DB_PREFIX . "order_product op
             LEFT JOIN " . DB_PREFIX . "product p ON p.product_id=op.product_id
             LEFT JOIN " . DB_PREFIX . "order_option oo ON op.order_product_id=oo.order_product_id
             LEFT JOIN " . DB_PREFIX . "product_option_value pov ON pov.product_option_value_id=oo.product_option_value_id
@@ -629,6 +634,7 @@ class ModelExtensionModuleBitrix24 extends Model
                 'product_id' => $product['product_id'],
                 'bitrix_id'  => $product['bitrix_id'],
                 'name'       => $product['name'],
+                'location'       => $product['location'],
                 'href'       => HTTPS_SERVER . 'admin/index.php?route=catalog/product/edit&product_id=' . $product['product_id'],
                 'model'      => $product['model'],
                 'option'     => $option_data,

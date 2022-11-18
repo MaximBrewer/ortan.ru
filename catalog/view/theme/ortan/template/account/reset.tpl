@@ -1,48 +1,45 @@
 <?php echo $header; ?>
-<div class="container">
-  <ul class="breadcrumb">
-    <?php foreach ($breadcrumbs as $breadcrumb) { ?>
-    <li><a href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a></li>
-    <?php } ?>
-  </ul>
-  <div class="row"><?php echo $column_left; ?>
-    <?php if ($column_left && $column_right) { ?>
-    <?php $class = 'col-sm-6'; ?>
-    <?php } elseif ($column_left || $column_right) { ?>
-    <?php $class = 'col-sm-9'; ?>
-    <?php } else { ?>
-    <?php $class = 'col-sm-12'; ?>
-    <?php } ?>
-    <div id="content" class="<?php echo $class; ?>"><?php echo $content_top; ?>
-      <h1><?php echo $heading_title; ?></h1>
-      <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" class="form-horizontal">
-        <fieldset>
-          <legend><?php echo $text_password; ?></legend>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-password"><?php echo $entry_password; ?></label>
-            <div class="col-sm-10">
-              <input type="password" name="password" value="<?php echo $password; ?>" id="input-password" class="form-control" />
+
+
+<div class="breadcrumbs">
+  <div class="container">
+    <ul class="breadcrumbs__list">
+      <?php foreach ($breadcrumbs as $breadcrumb) { ?>
+        <li class="breadcrumbs__item"><a href="<?php echo $breadcrumb['href']; ?>" class="breadcrumbs__link"><?php echo $breadcrumb['text']; ?></a></li>
+      <?php } ?>
+    </ul>
+  </div>
+</div>
+
+
+<section class="authorization authorization_main">
+  <div class="authorization__container container">
+    <h1 class="authorization__heading innerHeading"><?php echo $heading_title; ?></h1>
+    <form class="authForm" action="<?php echo $action; ?>" method="post" enctype="multipart/form-data">
+      <div class="authForm__wrapper">
+
+        <p class="authForm__input">
+          <label for="authForm__tel" class="authForm__label">Пароль<span class="authForm__requireStar"></span></label>
+          <input type="password" name="password" value="<?php echo $password; ?>" placeholder="<?php echo $entry_password; ?>" id="input-password" class="input" />
               <?php if ($error_password) { ?>
               <div class="text-danger"><?php echo $error_password; ?></div>
               <?php } ?>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-confirm"><?php echo $entry_confirm; ?></label>
-            <div class="col-sm-10">
-              <input type="password" name="confirm" value="<?php echo $confirm; ?>" id="input-confirm" class="form-control" />
+        </p>
+
+        <p class="authForm__input">
+          <label for="authForm__tel" class="authForm__label"><?php echo $entry_confirm; ?><span class="authForm__requireStar"></span></label>
+          <input type="password" name="confirm" value="<?php echo $confirm; ?>" id="input-confirm" placeholder="<?php echo $entry_confirm; ?>" class="input" />
               <?php if ($error_confirm) { ?>
               <div class="text-danger"><?php echo $error_confirm; ?></div>
               <?php } ?>
-            </div>
-          </div>
-        </fieldset>
-        <div class="buttons clearfix">
-          <div class="pull-left"><a href="<?php echo $back; ?>" class="btn btn-default"><?php echo $button_back; ?></a></div>
-          <div class="pull-right"><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> <?php echo $button_continue; ?></button></div>
-        </div>
-      </form>
-      <?php echo $content_bottom; ?></div>
-    <?php echo $column_right; ?></div>
-</div>
+        </p>
+
+        <button class="authForm__submit btn btn_red" type="submit" value="<?php echo $button_login; ?>"><?php echo $button_continue; ?></button>
+
+        <?php if ($redirect) { ?>
+          <input type="hidden" name="redirect" value="<?php echo $redirect; ?>" />
+        <?php } ?>
+    </form>
+  </div>
+</section>
 <?php echo $footer; ?>

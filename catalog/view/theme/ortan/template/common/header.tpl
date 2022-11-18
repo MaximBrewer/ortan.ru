@@ -83,6 +83,13 @@ if ($title === 'Контакты') {
         var wishlistIds = Object.values(JSON.parse('<?php echo json_encode($wishlist, JSON_FORCE_OBJECT); ?>'));
         var compareIds = Object.values(JSON.parse('<?php echo json_encode($compare, JSON_FORCE_OBJECT); ?>'));
     </script>
+
+
+	<!-- zadarma -->
+<script>(function(w, c){(w[c]=w[c]||[]).push(function(){new zTracker({"id":"e9956fd947618801ae15d95a4e9b44a014127","metrics":{"metrika":"53398495"}});});})(window, "zTrackerCallbacks");</script>
+<script async id="zd_ct_phone_script" src="https://my.zadarma.com/js/ct_phone.min.js"></script>
+	<!-- /zadarma -->
+
 	
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RQNJF3JYM9"></script>

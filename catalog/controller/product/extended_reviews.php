@@ -207,9 +207,14 @@ class ControllerProductExtendedReviews extends Controller
 
 		if ($this->request->server['REQUEST_METHOD'] == 'POST') {
 
-			if (empty($this->request->post['rating']) || $this->request->post['rating'] < 0 || $this->request->post['rating'] > 5) {
+			if (!$this->request->get['product_id']) {
 
-				$json['error'] = $this->language->get('error_rating');
+				$json['error'] = 'Необходимо выбрать товар!';
+			}
+
+			if ((utf8_strlen($this->request->post['name']) < $settings['name_min']) || (utf8_strlen($this->request->post['name']) > $settings['name_max'])) {
+
+				$json['error'] = sprintf($this->language->get('error_name'), $settings['name_min'], $settings['name_max']);
 			}
 
 			if ((utf8_strlen($this->request->post['name']) < $settings['name_min']) || (utf8_strlen($this->request->post['name']) > $settings['name_max'])) {
@@ -241,10 +246,12 @@ class ControllerProductExtendedReviews extends Controller
 			if (!isset($json['error'])) {
 
 				$this->load->model('catalog/extended_reviews');
-				$review_id = $this->model_catalog_extended_reviews->addReview($this->request->get['product_id'], $this->request->post);
+				$this->load->model('catalog/review');
+				// $review_id = $this->model_catalog_extended_reviews->addReview($this->request->get['product_id'], $this->request->post);
 				// $this->load->model('catalog/review');
 				// var_dump($this->request->post);
-				// $review_id = $this->model_catalog_review->addReview($this->request->post);
+				$review_id = $this->model_catalog_review->addReview($this->request->get['product_id'], $this->request->post);
+				$this->model_catalog_review->activate($review_id);
 
 				$json['success'] = $this->language->get('text_success');
 			}
