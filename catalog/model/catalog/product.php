@@ -1,5 +1,13 @@
 <?php
 class ModelCatalogProduct extends Model {
+	
+	public function autocomplete($query, $customer_id) {
+		$query = $this->db->query("SELECT DISTINCT(op.product_id), op.name FROM " . DB_PREFIX . "order o
+		left join `oc_order_product` op ON o.order_id=op.order_id
+		WHERE o.`customer_id` ='".(int)$customer_id."' AND op.name LIKE '%" . $this->db->escape($query) . "%'");
+		return  $query->rows;
+	}
+
 	public function updateViewed($product_id) {
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET viewed = (viewed + 1) WHERE product_id = '" . (int)$product_id . "'");
 	}

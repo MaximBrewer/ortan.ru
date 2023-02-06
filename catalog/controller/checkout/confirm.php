@@ -403,7 +403,17 @@ class ControllerCheckoutConfirm extends Controller
 					$data['header'] = $this->load->controller('common/header');
 					$data['payment'] = $this->load->controller('extension/payment/' . $this->session->data['payment_method']['code']);
 					$this->cart->clear();
-					return $this->response->setOutput($this->load->view('checkout/tinkoff', $data));
+					return $this->response->setOutput($this->load->view('checkout/' . $this->session->data['payment_method']['code'], $data));
+				}
+
+				if ($this->session->data['payment_method']['code'] == 'paykeeper') {
+					$data['footer'] = $this->load->controller('common/footer');
+					$data['header'] = $this->load->controller('common/header');
+					$data['payment'] = $this->load->controller('extension/payment/paykeeper/form');
+					var_dump($data['payment']);
+					die;
+					// $this->cart->clear();
+					return $this->response->setOutput($this->load->view('checkout/paykeeper', $data));
 				}
 
 				$this->response->redirect($this->url->link('checkout/success'));

@@ -1,6 +1,8 @@
 <?php
-class ControllerCheckoutPaymentMethod extends Controller {
-	public function index() {
+class ControllerCheckoutPaymentMethod extends Controller
+{
+	public function index()
+	{
 		$this->load->language('checkout/checkout');
 
 		if (isset($this->session->data['payment_address'])) {
@@ -15,7 +17,7 @@ class ControllerCheckoutPaymentMethod extends Controller {
 				'taxes'  => &$taxes,
 				'total'  => &$total
 			);
-			
+
 			$this->load->model('extension/extension');
 
 			$sort_order = array();
@@ -31,7 +33,7 @@ class ControllerCheckoutPaymentMethod extends Controller {
 			foreach ($results as $result) {
 				if ($this->config->get($result['code'] . '_status')) {
 					$this->load->model('extension/total/' . $result['code']);
-					
+
 					// We have to put the totals in an array so that they pass by reference.
 					$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
 				}
@@ -47,17 +49,35 @@ class ControllerCheckoutPaymentMethod extends Controller {
 			$recurring = $this->cart->hasRecurringProducts();
 
 			foreach ($results as $result) {
-				if ($this->config->get($result['code'] . '_status')) {
+				// if ($this->config->get($result['code'] . '_status')) {
+				if ($result['code'] === 'tinkoff') {
 					$this->load->model('extension/payment/' . $result['code']);
 
 					$method = $this->{'model_extension_payment_' . $result['code']}->getMethod($this->session->data['payment_address'], $total);
-
 					if ($method) {
 						if ($recurring) {
 							if (property_exists($this->{'model_extension_payment_' . $result['code']}, 'recurringPayments') && $this->{'model_extension_payment_' . $result['code']}->recurringPayments()) {
 								$method_data[$result['code']] = $method;
 							}
 						} else {
+							$method['sort_order'] = 0;
+							$method_data[$result['code']] = $method;
+						}
+					}
+				}
+			}
+			foreach ($results as $result) {
+				if ($result['code'] === 'paykeeper') {
+					$this->load->model('extension/payment/' . $result['code']);
+
+					$method = $this->{'model_extension_payment_' . $result['code']}->getMethod($this->session->data['payment_address'], $total);
+					if ($method) {
+						if ($recurring) {
+							if (property_exists($this->{'model_extension_payment_' . $result['code']}, 'recurringPayments') && $this->{'model_extension_payment_' . $result['code']}->recurringPayments()) {
+								$method_data[$result['code']] = $method;
+							}
+						} else {
+							$method['sort_order'] = 1;
 							$method_data[$result['code']] = $method;
 						}
 					}
@@ -130,7 +150,8 @@ class ControllerCheckoutPaymentMethod extends Controller {
 		$this->response->setOutput($this->load->view('checkout/payment_method', $data));
 	}
 
-	public function save() {
+	public function save()
+	{
 		$this->load->language('checkout/checkout');
 
 		$json = array();
