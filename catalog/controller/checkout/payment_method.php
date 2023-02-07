@@ -50,21 +50,21 @@ class ControllerCheckoutPaymentMethod extends Controller
 
 			foreach ($results as $result) {
 				// if ($this->config->get($result['code'] . '_status')) {
-				if ($result['code'] === 'tinkoff') {
-					$this->load->model('extension/payment/' . $result['code']);
+				// if ($result['code'] === 'tinkoff') {
+				// 	$this->load->model('extension/payment/' . $result['code']);
 
-					$method = $this->{'model_extension_payment_' . $result['code']}->getMethod($this->session->data['payment_address'], $total);
-					if ($method) {
-						if ($recurring) {
-							if (property_exists($this->{'model_extension_payment_' . $result['code']}, 'recurringPayments') && $this->{'model_extension_payment_' . $result['code']}->recurringPayments()) {
-								$method_data[$result['code']] = $method;
-							}
-						} else {
-							$method['sort_order'] = 0;
-							$method_data[$result['code']] = $method;
-						}
-					}
-				}
+				// 	$method = $this->{'model_extension_payment_' . $result['code']}->getMethod($this->session->data['payment_address'], $total);
+				// 	if ($method) {
+				// 		if ($recurring) {
+				// 			if (property_exists($this->{'model_extension_payment_' . $result['code']}, 'recurringPayments') && $this->{'model_extension_payment_' . $result['code']}->recurringPayments()) {
+				// 				$method_data[$result['code']] = $method;
+				// 			}
+				// 		} else {
+				// 			$method['sort_order'] = 0;
+				// 			$method_data[$result['code']] = $method;
+				// 		}
+				// 	}
+				// }
 			}
 			foreach ($results as $result) {
 				if ($result['code'] === 'paykeeper') {
