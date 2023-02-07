@@ -410,9 +410,7 @@ class ControllerCheckoutConfirm extends Controller
 					$data['footer'] = $this->load->controller('common/footer');
 					$data['header'] = $this->load->controller('common/header');
 					$data['payment'] = $this->load->controller('extension/payment/paykeeper/form');
-					var_dump($data['payment']);
-					die;
-					// $this->cart->clear();
+					$this->cart->clear();
 					return $this->response->setOutput($this->load->view('checkout/paykeeper', $data));
 				}
 
