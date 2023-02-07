@@ -115,7 +115,7 @@ if ($title === 'Контакты') {
 
 </head>
 
-<body class="<?php echo $dark ? 'innerPage' : ''; ?> <?php echo $class ? $class : ""; ?>" <?php echo $body_id; ?>>
+<body class="<?php echo isset($dark) && $dark ? 'innerPage' : ''; ?> <?php echo $class ? $class : ""; ?>" <?php echo $body_id ?? ''; ?>>
     <div class="common-wrapper">
         <header class="header">
             <div class="header__container">
@@ -186,7 +186,7 @@ if ($title === 'Контакты') {
                                 <a class="" href="<?= $home ?>edit-account/"><img src="/catalog/view/theme/ortan/assets/images/icon-user.svg" alt="exit icon" class="topMenu__icon"><span>Мой профиль</span></a>
                             </li>
                         <?php } ?>
-                        <?php echo $categoriesList; ?>
+                        <?php echo $categoriesList ?? ''; ?>
                         <li class="nav__item podarki_mob">
                             <a href="<?= $home ?>tovary/podarki1/" class="nav__link">ПОДАРКИ</a>
                         </li>
@@ -261,7 +261,7 @@ if ($title === 'Контакты') {
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46669 1.06667V18.9333H9.86669V1.06667H7.46669ZM7.20002 0C6.7582 0 6.40002 0.358173 6.40002 0.8V19.2C6.40002 19.6418 6.7582 20 7.20002 20H10.1334C10.5752 20 10.9334 19.6418 10.9334 19.2V0.8C10.9334 0.358172 10.5752 0 10.1334 0H7.20002Z" />
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M13.6 5.33333V18.9333H16V5.33333H13.6ZM13.3333 4.26666C12.8915 4.26666 12.5333 4.62484 12.5333 5.06666V19.2C12.5333 19.6418 12.8915 20 13.3333 20H16.2667C16.7085 20 17.0667 19.6418 17.0667 19.2V5.06666C17.0667 4.62483 16.7085 4.26666 16.2667 4.26666H13.3333Z" />
                             </svg>
-                            <span id="compare-total"><?php echo $text_compare; ?></span>
+                            <span id="compare-total"><?php echo isset($text_compare) ? $text_compare : ''; ?></span>
                         </a>
                     </li>
                     <li class="topMenu__item topMenu__item_cart"><?php echo $cart; ?></li>

@@ -1,7 +1,4 @@
 <?php
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
 // HTTP
 define('HTTP_SERVER', $_ENV['HTTP_SERVER']);
 

@@ -10,7 +10,7 @@ class Redis {
 
 		$this->cache = new \Redis();
 		$this->cache->pconnect(CACHE_HOSTNAME, CACHE_PORT);
-		$this->cache->auth('sdKUHBGVF7868gd');
+		if ($_ENV['APP_ENV'] !== 'local') $this->cache->auth('sdKUHBGVF7868gd');
 	}
 
 	public function get($key) {

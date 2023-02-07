@@ -466,7 +466,7 @@ class ControllerProductProduct extends Controller
             }
 
             $availability = 'http://schema.org/OutOfStock';
-            if ($this->data['quantity'] > 0) $availability = 'http://schema.org/InStock';
+            if ($product_info['quantity'] > 0) $availability = 'http://schema.org/InStock';
             $price = !empty($product_info['special']) ? $product_info['special'] : $product_info['price'];
             $price_until = date('c', strtotime('+1 week'));
             if ($data['special']) {

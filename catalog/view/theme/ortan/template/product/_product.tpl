@@ -10,8 +10,8 @@ $uniqid = uniqid();
                 <div style="position:relative;">
                     <div class="product__top">
                         <?php if ($special) { ?><p class="product__label product__label_red">РАСПРОДАЖА</p><?php } ?>
-                        <?php if ($novelty) { ?><p class="product__label product__label_green">НОВИНКА</p><?php } ?>
-                        <?php if ($bestseller) { ?><p class="product__label">БЕСТСЕЛЛЕР</p><?php } ?>
+                        <?php if (isset($novelty) && $novelty) { ?><p class="product__label product__label_green">НОВИНКА</p><?php } ?>
+                        <?php if (isset($bestseller) && $bestseller) { ?><p class="product__label">БЕСТСЕЛЛЕР</p><?php } ?>
                         <div class="opbtn__emotions">
                             <a class="opbtn__img opbtn__img_like opbtn__child" href="/wishlist" data-wishlist="<?php echo $product_id; ?>">
                                 <svg width="23" height="20" viewBox="0 0 23 20" fill="none" class="productm__icon" xmlns="http://www.w3.org/2000/svg">
@@ -219,7 +219,7 @@ $uniqid = uniqid();
                     <?php } ?>
                     <a href="#" class="opbtn__buy btn" data-toggle="modal" data-target="#oneclickModal-<?php echo $uniqid; ?>">купить в 1 клик</a>
                 </div>
-                <?php if ($similars && !empty($similars)) { ?>
+                <?php if (isset($bestseller) && !empty($similars)) { ?>
                     <div class="options__color prcolor">
                         <p class="prcolor__heading options__heading">Доступные цвета:</p>
                         <div class="prcolor__wrapper">
@@ -241,7 +241,7 @@ $uniqid = uniqid();
                 <span class="prtabs__tab">Характеристики</span>
                 <span class="prtabs__tab">Доставка и оплата</span>
                 <span class="prtabs__tab">Как выбрать размер</span>
-                <?php if ($youtube) { ?><span class="prtabs__tab">Видео</span> <?php } ?>
+                <?php if ($youtube ?? 0) { ?><span class="prtabs__tab">Видео</span> <?php } ?>
                 <!--span class="prtabs__tab">Отзывы <span class="prtabs__testimonials"><?php echo $reviews; ?></span></span-->
             </div>
             <div class="prtabs__content">
@@ -319,7 +319,7 @@ $uniqid = uniqid();
                     </div>
                     <p class="tabs__show">Развернуть</p>
                 </div>
-                <?php if ($youtube) { ?>
+                <?php if ($youtube ?? 0) { ?>
                     <div class="prtabs__item video">
                         <span class="prtabs__name">Видео</span>
                         <div class="video__wrapper">

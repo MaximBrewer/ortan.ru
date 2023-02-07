@@ -29,7 +29,7 @@
     </div>
   </section>
 <?php } ?>
-<?php if ($catsp && !empty($catsp)) { ?>
+<?php if (isset($catsp) && !empty($catsp)) { ?>
   <section class="bestsellers sameProd">
     <div class="container bestsellers__container">
       <h4 class="shouldLike__headiing seen__heading">ПОХОЖИЕ ТОВАРЫ</h4>
@@ -48,7 +48,7 @@
     </div>
   </section>
 <?php } ?>
-<?php if ($recently_viewed && !empty($recently_viewed)) { ?>
+<?php if (isset($recently_viewed) && !empty($recently_viewed)) { ?>
   <section class="bestsellers seen">
     <div class="container bestsellers__container">
       <div class="bestsellers__top">
@@ -277,7 +277,7 @@
       }
 
 
-      <?php if ($youtube) { ?>
+      <?php if ($youtube ?? false) { ?>
         // $.getJSON('https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=<?php echo $youtube ?>&key=AIzaSyBV0eSZxQOn3OEf0oRCIXeAF04y2T8-A60', function(data) {
         //   $("#videoName").text(data.items[0].snippet.title ?? "");
         //   $("#videoText").text((data.items[0].statistics.viewCount ?? "") + ' просмотров');

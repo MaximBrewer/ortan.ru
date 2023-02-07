@@ -1,7 +1,4 @@
 <?php
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
-
 // HTTP
 define('HTTP_SERVER', $_ENV['HTTP_SERVER'] .'admin/');
 define('HTTP_CATALOG', $_ENV['HTTP_SERVER']);

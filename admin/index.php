@@ -4,7 +4,10 @@ require_once(dirname(__DIR__) . '/vendor/autoload.php');
 define('VERSION', '2.3.0.2.4');
 define('IS_ADMIN', true);
 
+
 // Configuration
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
 if (is_file('config.php')) {
 	require_once('config.php');
 }

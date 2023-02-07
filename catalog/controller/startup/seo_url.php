@@ -98,7 +98,7 @@ class ControllerStartupSeoUrl extends Controller
 					$redirLoc = 'Location: ' . urldecode('http' . ($isSSL ? 's' : '') . '://' . str_replace('www.', '', $_SERVER['HTTP_HOST']) . $_SERVER['REQUEST_URI']);
 				}
 
-				if ($redirLoc) {
+				if ($redirLoc && $_ENV['APP_ENV'] !== 'local') {
 					header('HTTP/1.1 301 Moved Permanently');
 					header('CSP-Redir: http (Mode:' . $this->config->get('mlseo_redirect_http') . ', SSL:' . (int)$isSSL . ', WWW:' . (int)$isWWW . ')', false);
 					header($redirLoc);
