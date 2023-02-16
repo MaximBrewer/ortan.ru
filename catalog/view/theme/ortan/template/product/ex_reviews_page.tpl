@@ -213,7 +213,7 @@
                   <ul class="review__thumbs">
                     <?php foreach ($review['images'] as $image) { ?>
                       <li class="review__thumb">
-                        <a data-fancybox="gallery1" href="<?php echo $image['popup']; ?>" class="review__thumbLink">
+                        <a data-fancybox="gallery1" href="<?php echo $image['popup']; ?>" class="review__thumbLink" alt="<?php echo $review['prod_name']; ?>">
                           <img src="<?php echo $image['thumb']; ?>" alt="thumbnail product">
                           <div class="review__thumbHover">
                             <img src="/catalog/view/theme/ortan/assets/images/icon-zoom.svg" alt="show pruduct">

@@ -165,7 +165,7 @@ $uniqid = uniqid();
                         <?php } ?>
                     </div>
                     <?php if ($sizes) { ?>
-                        <a data-fancybox="sizes" href="<?php echo $sizes; ?>" class="size__link" alt="Таблица размеров">Таблица размеров</a>
+                        <a data-fancybox="sizes" href="<?php echo $sizes; ?>" class="size__link" alt="<?php echo $sizesalt ?? ""; ?>">Таблица размеров</a>
                     <?php } ?>
                     <div class="size__hint"><?php echo $text_size_hint; ?></div>
                 </div>
@@ -213,7 +213,6 @@ $uniqid = uniqid();
                         ">Купить в рассрочку</button>
                         <script>
                             var prx = $('.guid-<?php echo $product_id; ?> .data__newPrice').text().replace(/[^\d.]/ig, '') * 1;
-                            console.log(prx)
                             if (prx >= 3000) $('#tinkoff-button-<?php echo $product_id; ?>').show()
                         </script>
                     <?php } ?>

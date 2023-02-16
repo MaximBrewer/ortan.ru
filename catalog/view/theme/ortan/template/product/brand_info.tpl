@@ -154,7 +154,7 @@
 </section>
 <?php if ($sizes) { ?>
   <script>
-    $('.sizes_wrapper').html('<a data-fancybox="sizes" href="<?php echo $sizes; ?>" class="size__link">Таблица размеров</a>');
+    $('.sizes_wrapper').html('<a data-fancybox="sizes" href="<?php echo $sizes; ?>" alt="<?php echo $sizesalt ?? ""; ?>" class="size__link">Таблица размеров</a>');
   </script>
 <?php } ?>
 <?php echo $footer; ?>

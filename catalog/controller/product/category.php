@@ -3,7 +3,7 @@ class ControllerProductCategory extends Controller
 {
 	public function index()
 	{
-        $data['lang_link'] = $this->config->get('lang_pref');
+		$data['lang_link'] = $this->config->get('lang_pref');
 		$data['class'] = '';
 		$this->load->language('product/category');
 
@@ -11,7 +11,7 @@ class ControllerProductCategory extends Controller
 
 		$this->load->model('catalog/product');
 
-        $this->load->model('catalog/sort_type');
+		$this->load->model('catalog/sort_type');
 
 		$this->load->model('tool/image');
 
@@ -24,7 +24,7 @@ class ControllerProductCategory extends Controller
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-            $sort = 'p.sort_order';
+			$sort = 'p.sort_order';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -111,13 +111,20 @@ class ControllerProductCategory extends Controller
 			} else {
 				$data['heading_title'] = $category_info['name'];
 			}
-
+			$data['sizesalt'] = '';
 			if (isset($category_info) && $category_info && $category_info['sizes']) {
 				$data['sizes'] = '/image/' . $category_info['sizes'];
 			} else {
 				$sizes = $this->model_catalog_category->findSizes($category_info['category_id']);
 				if ($sizes) {
 					$data['sizes'] = '/image/' . $sizes;
+					switch ($data['sizes']) {
+						case "/image/catalog/tablicy-razmerov/tablicarazmerovnalokotniki2.jpg":
+							$data['sizesalt'] = 'Таблица размеров налокотников';
+							break;
+						default:
+							$data['sizesalt'] = 'Таблица размеров';
+					}
 				} else
 					$data['sizes'] = false;
 			}
@@ -157,13 +164,13 @@ class ControllerProductCategory extends Controller
 			$data['description'] = html_entity_decode($category_info['description'], ENT_QUOTES, 'UTF-8');
 			$data['compare'] = $this->url->link('product/compare');
 
-			if (!empty($category_info['sort_type'])){
-			    $aSort = explode('-', $category_info['sort_type']);
-			    $sort = $aSort[0];
-			    if (!empty($aSort[1])) {
-			        $order = $aSort[1];
-                }
-            }
+			if (!empty($category_info['sort_type'])) {
+				$aSort = explode('-', $category_info['sort_type']);
+				$sort = $aSort[0];
+				if (!empty($aSort[1])) {
+					$order = $aSort[1];
+				}
+			}
 
 			$url = '';
 
@@ -277,7 +284,7 @@ class ControllerProductCategory extends Controller
 			// 	'value' => 'p.sort_order-ASC',
 			// 	'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.sort_order&order=ASC' . $url)
 			// );
-/*
+			/*
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_asc'),
 				'value' => 'pd.name-ASC',
@@ -328,11 +335,10 @@ class ControllerProductCategory extends Controller
 			// 	'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.model&order=DESC' . $url)
 			// );
 
-            $data['sorts'] = $this->model_catalog_sort_type->getSorts();
-            foreach($data['sorts'] as $k => $aSort) {
-                $data['sorts'][$k]['href'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&'.$aSort['href'] . $url);
-
-            }
+			$data['sorts'] = $this->model_catalog_sort_type->getSorts();
+			foreach ($data['sorts'] as $k => $aSort) {
+				$data['sorts'][$k]['href'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&' . $aSort['href'] . $url);
+			}
 
 			$url = '';
 

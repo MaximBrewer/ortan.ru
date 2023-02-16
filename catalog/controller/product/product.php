@@ -3,7 +3,8 @@ class ControllerProductProduct extends Controller
 {
 	private $error = array();
 
-	public function index() {
+	public function index()
+	{
 
 		$data['href'] = $this->url->link('product/product', 'product_id=' . $this->request->get['product_id']);
 		$this->load->language('product/product');
@@ -321,9 +322,9 @@ class ControllerProductProduct extends Controller
 					'thumb' => $this->model_tool_image->resize($result['image'], $this->config->get($this->config->get('config_theme') . '_image_additional_width'), $this->config->get($this->config->get('config_theme') . '_image_additional_height'))
 				);
 			}
-			
+
 			$data['sizes'] = false;
-			
+			$data['sizesalt'] = '';
 			if (isset($category_info) && $category_info) {
 				if ($category_info['sizes']) {
 					$data['sizes'] = '/image/' . $category_info['sizes'];
@@ -332,6 +333,15 @@ class ControllerProductProduct extends Controller
 					if ($sizes) {
 						$data['sizes'] = '/image/' . $sizes;
 					}
+				}
+			}
+			if ($data['sizes']) {
+				switch ($data['sizes']) {
+					case "/image/catalog/tablicy-razmerov/tablicarazmerovnalokotniki2.jpg":
+						$data['sizesalt'] = 'Таблица размеров налокотников';
+						break;
+					default:
+						$data['sizesalt'] = 'Таблица размеров';
 				}
 			}
 
@@ -433,94 +443,94 @@ class ControllerProductProduct extends Controller
              * Микроразметка
 			 */
 
-            $aJson = [];
-            $aJson["@context"] = "https://schema.org";
-            $aJson["@type"] = "Product";
+			$aJson = [];
+			$aJson["@context"] = "https://schema.org";
+			$aJson["@type"] = "Product";
 
-            $aJson["name"] = $product_info['name'];
-            $aJson["url"] = $this->url->link('product/product', 'product_id=' . $product_info['product_id']);
-            if ($product_info['sku']) $aJson["sku"] = $product_info['sku'];
+			$aJson["name"] = $product_info['name'];
+			$aJson["url"] = $this->url->link('product/product', 'product_id=' . $product_info['product_id']);
+			if ($product_info['sku']) $aJson["sku"] = $product_info['sku'];
 
-            if ($product_info['mpn']) {
-                $aJson["mpn"] = $product_info['mpn'];
-            } elseif ($product_info['model']) {
-                $aJson["mpn"] = $product_info['model'];
-            }
+			if ($product_info['mpn']) {
+				$aJson["mpn"] = $product_info['mpn'];
+			} elseif ($product_info['model']) {
+				$aJson["mpn"] = $product_info['model'];
+			}
 
-            if (!empty($product_info['image'])) {
-                $aJson["image"] = $this->model_tool_image->resize($product_info['image'], $this->config->get($this->config->get('config_theme') . '_image_popup_width'), $this->config->get($this->config->get('config_theme') . '_image_popup_height'));
-            }
+			if (!empty($product_info['image'])) {
+				$aJson["image"] = $this->model_tool_image->resize($product_info['image'], $this->config->get($this->config->get('config_theme') . '_image_popup_width'), $this->config->get($this->config->get('config_theme') . '_image_popup_height'));
+			}
 
-            if (!empty($product_info['manufacturer'])) {
-                $aJson["brand"] = [
-                    "@type" => "Brand",
-                    "name" => $product_info['manufacturer'],
-                    "url" => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $product_info['manufacturer_id'])
-                ];
+			if (!empty($product_info['manufacturer'])) {
+				$aJson["brand"] = [
+					"@type" => "Brand",
+					"name" => $product_info['manufacturer'],
+					"url" => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $product_info['manufacturer_id'])
+				];
 
-                $aJson["manufacturer"] = [
-                    "@type" => "Organization",
-                    "name" => $product_info['manufacturer'],
-                    "url" => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $product_info['manufacturer_id'])
-                ];
-            }
+				$aJson["manufacturer"] = [
+					"@type" => "Organization",
+					"name" => $product_info['manufacturer'],
+					"url" => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $product_info['manufacturer_id'])
+				];
+			}
 
-            $availability = 'http://schema.org/OutOfStock';
-            if ($product_info['quantity'] > 0) $availability = 'http://schema.org/InStock';
-            $price = !empty($product_info['special']) ? $product_info['special'] : $product_info['price'];
-            $price_until = date('c', strtotime('+1 week'));
-            if ($data['special']) {
-                $action = $this->model_catalog_product->getProductAction($this->request->get['product_id']);
-                if ($action['date_end'] != '0000-00-00') {
-                    $price_until = $action['date_end'];
-                }
-            }
+			$availability = 'http://schema.org/OutOfStock';
+			if ($product_info['quantity'] > 0) $availability = 'http://schema.org/InStock';
+			$price = !empty($product_info['special']) ? $product_info['special'] : $product_info['price'];
+			$price_until = date('c', strtotime('+1 week'));
+			if ($data['special']) {
+				$action = $this->model_catalog_product->getProductAction($this->request->get['product_id']);
+				if ($action['date_end'] != '0000-00-00') {
+					$price_until = $action['date_end'];
+				}
+			}
 
-            $aJson["offers"] = [
-                "@type" => "Offer",
-                "url" => $aJson["url"],
-                "price" => number_format($price, 2, '.', ''),
-                "priceValidUntil" => $price_until,
-                "availability" => $availability,
-                "priceCurrency" => "RUB"
-            ];
+			$aJson["offers"] = [
+				"@type" => "Offer",
+				"url" => $aJson["url"],
+				"price" => number_format($price, 2, '.', ''),
+				"priceValidUntil" => $price_until,
+				"availability" => $availability,
+				"priceCurrency" => "RUB"
+			];
 
-            $description = strip_tags(str_replace("\r\n", '', $data['description']));
-            //if (mb_strlen($description) > 300) $description = mb_substr($description, 0, mb_strpos($description, ' ', 300));
-            $aJson["description"] = $description;
+			$description = strip_tags(str_replace("\r\n", '', $data['description']));
+			//if (mb_strlen($description) > 300) $description = mb_substr($description, 0, mb_strpos($description, ' ', 300));
+			$aJson["description"] = $description;
 
-            if ($product_info['reviews']) {
-                $aJson["aggregateRating"] = [
-                    "@type" => "AggregateRating",
-                    "reviewCount" => $product_info['reviews'],
-                    "ratingValue" => $product_info['rating']
-                ];
+			if ($product_info['reviews']) {
+				$aJson["aggregateRating"] = [
+					"@type" => "AggregateRating",
+					"reviewCount" => $product_info['reviews'],
+					"ratingValue" => $product_info['rating']
+				];
 
-                $this->load->model('catalog/review');
+				$this->load->model('catalog/review');
 
-                $aReviews = $this->model_catalog_review->getReviewsByProductId($this->request->get['product_id'], 0, 10);
-                $aReviewsJson = [];
-                foreach ($aReviews as $aReview) {
-                    $aReviewsJson[] = [
-                        "@type" => "Review",
-                        "author" => $aReview['author'],
-                        "datePublished" => date('c', strtotime($aReview['date_added'])),
-                        "description" => strip_tags(str_replace("\r\n", '', $aReview['text'])),
-                        "reviewRating" => [
-                            "@type" => "Rating",
-                            "ratingValue" => $aReview['rating']
-                        ]
-                    ];
-                }
+				$aReviews = $this->model_catalog_review->getReviewsByProductId($this->request->get['product_id'], 0, 10);
+				$aReviewsJson = [];
+				foreach ($aReviews as $aReview) {
+					$aReviewsJson[] = [
+						"@type" => "Review",
+						"author" => $aReview['author'],
+						"datePublished" => date('c', strtotime($aReview['date_added'])),
+						"description" => strip_tags(str_replace("\r\n", '', $aReview['text'])),
+						"reviewRating" => [
+							"@type" => "Rating",
+							"ratingValue" => $aReview['rating']
+						]
+					];
+				}
 
-                if (!empty($aReviewsJson)) $aJson["review"] = $aReviewsJson;
-            }
+				if (!empty($aReviewsJson)) $aJson["review"] = $aReviewsJson;
+			}
 
-            $hJson = json_encode($aJson, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+			$hJson = json_encode($aJson, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-            $data['ldjson'] = '<script type="application/ld+json">'. $hJson . '</script>';
-            //\--------------------------------------------------------------------------------
-            
+			$data['ldjson'] = '<script type="application/ld+json">' . $hJson . '</script>';
+			//\--------------------------------------------------------------------------------
+
 
 			$data['share'] = $this->url->link('product/product', 'product_id=' . (int)$this->request->get['product_id']);
 
@@ -685,7 +695,8 @@ class ControllerProductProduct extends Controller
 		}
 	}
 
-	public function review() {
+	public function review()
+	{
 		$this->load->language('product/product');
 
 		$this->load->model('catalog/review');
@@ -726,7 +737,8 @@ class ControllerProductProduct extends Controller
 		$this->response->setOutput($this->load->view('product/review', $data));
 	}
 
-	public function write() {
+	public function write()
+	{
 		$this->load->language('product/product');
 
 		$json = array();
@@ -768,7 +780,8 @@ class ControllerProductProduct extends Controller
 
 
 
-	public function autocomplete() {
+	public function autocomplete()
+	{
 		$json = array();
 
 		if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_model'])) {
@@ -794,7 +807,8 @@ class ControllerProductProduct extends Controller
 		$this->response->setOutput(json_encode($json));
 	}
 
-	public function getRecurringDescription() {
+	public function getRecurringDescription()
+	{
 		$this->load->language('product/product');
 		$this->load->model('catalog/product');
 
