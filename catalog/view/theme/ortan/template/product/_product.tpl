@@ -165,7 +165,7 @@ $uniqid = uniqid();
                         <?php } ?>
                     </div>
                     <?php if ($sizes) { ?>
-                        <a data-fancybox="sizes" href="<?php echo $sizes; ?>" class="size__link">Таблица размеров</a>
+                        <a data-fancybox="sizes" href="<?php echo $sizes; ?>" class="size__link" alt="Таблица размеров">Таблица размеров</a>
                     <?php } ?>
                     <div class="size__hint"><?php echo $text_size_hint; ?></div>
                 </div>

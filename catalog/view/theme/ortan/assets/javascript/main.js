@@ -1,31 +1,31 @@
 jQuery(function () {
-$('.faq .filter__input').on('change', function(){
-  window.location.href = $(this).closest('a').attr('href');
-})
-	    $(document).mouseup(function (e) {
-        if (!$(e.target).closest("#search").length) {
-                $('#search').css({
-                	'display': 'none'
-                });
-        }
-    });
-      $('.js-open-callback').on('click', function(){
-$('body').addClass('callback-open');
-      $(document).mouseup(function (e) {
-        if (!$(e.target).closest(".modal-dialog").length) {
-          $('#feedBackModal').hide();
-             $('body').removeClass('callback-open');  
-        }
-        if($(e.target).closest(".city__close").length){
-          $('#feedBackModal').hide();
-
-             $('body').removeClass('callback-open');
-
-        }
-    });
-
+  $('.faq .filter__input').on('change', function () {
+    window.location.href = $(this).closest('a').attr('href');
+  })
+  $(document).mouseup(function (e) {
+    if (!$(e.target).closest("#search").length) {
+      $('#search').css({
+        'display': 'none'
       });
- 
+    }
+  });
+  $('.js-open-callback').on('click', function () {
+    $('body').addClass('callback-open');
+    $(document).mouseup(function (e) {
+      if (!$(e.target).closest(".modal-dialog").length) {
+        $('#feedBackModal').hide();
+        $('body').removeClass('callback-open');
+      }
+      if ($(e.target).closest(".city__close").length) {
+        $('#feedBackModal').hide();
+
+        $('body').removeClass('callback-open');
+
+      }
+    });
+
+  });
+
   // Menu Custom Scrollbar
   if ($(window).width() > 990) {
     $(".mainMenu").mCustomScrollbar();
@@ -256,7 +256,7 @@ $('body').addClass('callback-open');
   });
 
 
-   $(".bestsellers__sliderp").slick({
+  $(".bestsellers__sliderp").slick({
     infinite: true,
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -538,12 +538,12 @@ $('body').addClass('callback-open');
 
   // dialog button
 
-  $('.dialogBtn__close').on('click', function() {
+  $('.dialogBtn__close').on('click', function () {
     $('.dialogBtn__textBox').fadeOut(100)
   })
 
-  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-    $(window).scroll(function() {
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    $(window).scroll(function () {
       $('.dialogBtn').fadeOut(100);
     });
 
@@ -551,35 +551,39 @@ $('body').addClass('callback-open');
     $('.dialogBtn').addClass('mobile');
 
     // extension:
-    $.fn.scrollEnd = function(callback, timeout) {          
-      $(this).on('scroll', function(){
+    $.fn.scrollEnd = function (callback, timeout) {
+      $(this).on('scroll', function () {
         var $this = $(this);
         if ($this.data('scrollTimeout')) {
           clearTimeout($this.data('scrollTimeout'));
         }
-        $this.data('scrollTimeout', setTimeout(callback,timeout));
+        $this.data('scrollTimeout', setTimeout(callback, timeout));
       });
     };
 
     // how to call it (with a 1000ms timeout):
-    $(window).scrollEnd(function(){
+    $(window).scrollEnd(function () {
       $('.dialogBtn').fadeIn(100);
     }, 1500);
-   }
+  }
 
 
 
-// РАСКОММЕТИРОВАТЬ ДЛЯ ВКЛЮЧЕНИЯ ПОПАПА ПОДАРКА ДО 582 СТРОКИ ВКЛЮЧИТЕЛЬНО. ОСТАЛЬНОЙ КОД В FOOTER.TPL
-//   const giftModalTarget = document.querySelector('[data-target="#giftModal"]');
-// const days = '259200000';
-//             if (+(localStorage.getItem('gift-modal')) + +days < Date.now()) {
-//                 localStorage.removeItem('gift-modal');
-//             }
-//             if (localStorage.getItem('gift-modal') === null) {
-//               setTimeout(function(){
-//                giftModalTarget.click();
-//     localStorage.setItem('gift-modal', Date.now());
-//   }, 3000);
-//             }
-
+  // РАСКОММЕТИРОВАТЬ ДЛЯ ВКЛЮЧЕНИЯ ПОПАПА ПОДАРКА ДО 582 СТРОКИ ВКЛЮЧИТЕЛЬНО. ОСТАЛЬНОЙ КОД В FOOTER.TPL
+  //   const giftModalTarget = document.querySelector('[data-target="#giftModal"]');
+  // const days = '259200000';
+  //             if (+(localStorage.getItem('gift-modal')) + +days < Date.now()) {
+  //                 localStorage.removeItem('gift-modal');
+  //             }
+  //             if (localStorage.getItem('gift-modal') === null) {
+  //               setTimeout(function(){
+  //                giftModalTarget.click();
+  //     localStorage.setItem('gift-modal', Date.now());
+  //   }, 3000);
+  //             }
+  // $('[data-fancy="sizes"]').fancybox({
+  //   afterLoad: function (instance, current) {
+  //     current.$image.attr('alt', 'Таблица размеров');
+  //   }
+  // });
 });

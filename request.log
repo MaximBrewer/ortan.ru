@@ -1,0 +1,17 @@
+Array
+(
+    [id] => 4
+    [sum] => 45014.90
+    [clientid] => 123 123
+    [orderid] => 3874
+    [key] => 3cb2912c484400285a76b946acc74e3c
+    [ps_id] => 127
+    [client_email] => sdvfe@wfvgr.sd
+    [client_phone] => 13123
+    [card_number] => {
+    [card_holder] => {
+    [card_expiry] => {
+    [obtain_datetime] => 2023-02-07 12:25:53
+    [RRN] => 16757619523248
+    [APPROVAL_CODE] => {
+)
