@@ -42,7 +42,7 @@
             <div class="managers__item manager">
                 <div class="manager__card">
                     <div class="manager__imgBox">
-                        <img src="/catalog/view/theme/ortan/assets/images/manager1.jpg" alt="" class="manager__img">
+                        <img src="/catalog/view/theme/ortan/assets/images/manager1.jpg" alt="Менеджер по продажам Максим Патапов" class="manager__img">
                     </div>
                     <p class="manager__name">Максим Патапов</p>
                     <div class="manager__position">Менеджер по продажам</div>
@@ -70,7 +70,7 @@
             <div class="managers__item manager">
                 <div class="manager__card">
                     <div class="manager__imgBox">
-                        <img src="/catalog/view/theme/ortan/assets/images/manager2.jpg" alt="" class="manager__img">
+                        <img src="/catalog/view/theme/ortan/assets/images/manager2.jpg" alt="Старший менеджер Алеся Гвоздик" class="manager__img">
                     </div>
                     <p class="manager__name">Алеся Гвоздик</p>
                     <div class="manager__position">Старший менеджер</div>
@@ -98,7 +98,7 @@
             <div class="managers__item manager">
                 <div class="manager__card">
                     <div class="manager__imgBox">
-                        <img src="/catalog/view/theme/ortan/assets/images/manager3.jpg" alt="" class="manager__img">
+                        <img src="/catalog/view/theme/ortan/assets/images/manager3.jpg" alt="Менеджер по продажам Арина Демина" class="manager__img">
                     </div>
                     <p class="manager__name">Арина Демина</p>
                     <div class="manager__position">Менеджер по продажам</div>

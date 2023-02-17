@@ -111,23 +111,46 @@ class ControllerProductCategory extends Controller
 			} else {
 				$data['heading_title'] = $category_info['name'];
 			}
-			$data['sizesalt'] = '';
 			if (isset($category_info) && $category_info && $category_info['sizes']) {
 				$data['sizes'] = '/image/' . $category_info['sizes'];
 			} else {
 				$sizes = $this->model_catalog_category->findSizes($category_info['category_id']);
 				if ($sizes) {
 					$data['sizes'] = '/image/' . $sizes;
-					switch ($data['sizes']) {
-						case "/image/catalog/tablicy-razmerov/tablicarazmerovnalokotniki2.jpg":
-							$data['sizesalt'] = 'Таблица размеров налокотников';
-							break;
-						default:
-							$data['sizesalt'] = 'Таблица размеров';
-					}
 				} else
 					$data['sizes'] = false;
 			}
+			
+			$data['sizesalt'] = '';
+			if ($data['sizes'])	
+				switch ($data['sizes']) {
+					case "/image/catalog/tablicy-razmerov/tablicarazmerovnalokotniki2.jpg":
+						$data['sizesalt'] = 'Таблица размеров налокотников';
+						break;
+					case "/image/catalog/tablicy-razmerov/rezultat.jpg":
+						$data['sizesalt'] = 'Таблица размеров стопы';
+						break;
+					case "/image/catalog/tablicy-razmerov/tablicarazmerovkragi.jpg":
+						$data['sizesalt'] = 'Таблица размеров для подбора краг';
+						break;
+					case "/image/catalog/tablicy-razmerov/tablicarazmerovperchatok.jpg":
+						$data['sizesalt'] = 'Таблица размеров перчаток';
+						break;
+					case "/image/catalog/tablicy-razmerov/zaschitareberrazmery.jpg":
+						$data['sizesalt'] = 'Таблица размеров объема груди';
+						break;
+					case "/image/catalog/tablicy-razmerov/tablicarazmerovodezhdy.png":
+						$data['sizesalt'] = 'Таблица размеров одежды';
+						break;
+					case "/image/catalog/tablicy-razmerov/2021-09-25_14-19-01.png":
+						$data['sizesalt'] = 'Таблица размеров головы';
+						break;
+					case "/image/catalog/tablicy-razmerov/nakolennikirazmery.png":
+						$data['sizesalt'] = 'Таблица размеров наколенников';
+						break;
+					default:
+						$data['sizesalt'] = 'Таблица размеров';
+				}
 
 			$data['text_refine'] = $this->language->get('text_refine');
 			$data['text_empty'] = $this->language->get('text_empty');
