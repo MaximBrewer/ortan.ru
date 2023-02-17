@@ -22,7 +22,7 @@
     <span itemprop="telephone">8 (800) 350-45-93</span>
     <span itemprop="telephone">+7 926 471 18 17</span>
     <span itemprop="url" src="https://ortan.ru">https://ortan.ru</span>
-    <img src="https://ortan.ru/logo_ortan.png" itemprop="image">
+    <img src="https://ortan.ru/logo_ortan.png" itemprop="image" alt="Логотип Ortan">
     <div itemprop="paymentAccepted">наличные, кредитные карты, оплата по счету</div>
     <meta itemprop="openingHours" content="Mo 10:00-20:00" />
     <meta itemprop="openingHours" content="Mo 10:00-20:00" />
