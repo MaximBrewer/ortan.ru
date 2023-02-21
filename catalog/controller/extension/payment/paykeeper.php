@@ -468,4 +468,127 @@ class ControllerExtensionPaymentPaykeeper extends Controller
 
         return $form;
     }
+
+    public function generateEmailPaymentForm($order_id)
+    {
+        $this->load->model('checkout/order');
+        $this->load->model('catalog/product');
+
+        $order_info = $this->model_checkout_order->getOrder($order_id);
+        // echo '<pre>';
+        // print_r($this->language->get('text_handling'));
+        // die;
+        //GENERATING PAYKEEPER PAYMENT FORM
+        $pk_obj = new PaykeeperPayment();
+
+        $paykeeperserver = $this->db->query("select * from  " . DB_PREFIX . "setting where `key`='paykeeperserver' ");
+        $paykeeperserver = $paykeeperserver->row['value'];
+
+        $paykeepersecret = $this->db->query("select * from  " . DB_PREFIX . "setting where `key`='paykeepersecret' ");
+        $paykeepersecret = $paykeepersecret->row['value'];
+        //set order params
+        $pk_obj->setOrderParams(
+            //sum
+            $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false),
+            //clientid
+            $order_info['firstname'] . " " . $order_info['lastname'],
+            //orderid
+            $order_info['order_id'],
+            //client_email
+            $order_info['email'],
+            //client_phone
+            $order_info['telephone'],
+            //service_name
+            '',
+            //payment form url
+            $paykeeperserver,
+            //secret key
+            $paykeepersecret
+        );
+
+        //GENERATE FZ54 CART
+
+        $cart_data = $this->model_checkout_order->getOrderProducts($order_id);
+        $item_index = 0;
+
+        foreach ($cart_data as $item) {
+            
+            $name = $item["name"];
+
+            $price = $item['price'];
+            $quantity = floatval($item['quantity']);
+            $sum = round($price * $quantity);
+
+            $pk_obj->updateFiscalCart(
+                $pk_obj->getPaymentFormType(),
+                $name,
+                $price,
+                $quantity,
+                $sum
+            );
+            $item_index++;
+        }
+
+        $sum = 0;
+        foreach ($pk_obj->getFiscalCart() as $position) {
+            $sum += $position['sum'];
+        }
+        $sum = $sum ? $sum : $pk_obj->getOrderTotal();
+        
+        if ($pk_obj->getOrderTotal() != $sum) {
+            $pk_obj->updateFiscalCart(
+                $pk_obj->getPaymentFormType(),
+                'Доставка',
+                $pk_obj->getOrderTotal() - $sum,
+                1,
+                $pk_obj->getOrderTotal() - $sum
+            );
+        }
+
+        $fiscal_cart_encoded = json_encode($pk_obj->getFiscalCart());
+        $pk_obj->correctPrecision();
+
+        $sum = $pk_obj->getOrderTotal();
+        
+        $form = "";
+
+        $to_hash = number_format($pk_obj->getOrderTotal(), 2, ".", "") .
+            $pk_obj->getOrderParams("clientid")     .
+            $pk_obj->getOrderParams("orderid")      .
+            $pk_obj->getOrderParams("service_name") .
+            $pk_obj->getOrderParams("client_email") .
+            $pk_obj->getOrderParams("client_phone") .
+            $pk_obj->getOrderParams("secret_key");
+        $sign = hash('sha256', $to_hash);
+
+        $form = '
+                <form style="opacity:0;" name="payment" id="pay_form" action="' . $pk_obj->getOrderParams("form_url") . '" accept-charset="utf-8" method="post">
+                <input type="hidden" name="sum" value = "' . $sum . '"/>
+                <input type="hidden" name="orderid" value = "' . $pk_obj->getOrderParams("orderid") . '"/>
+                <input type="hidden" name="clientid" value = "' . $pk_obj->getOrderParams("clientid") . '"/>
+                <input type="hidden" name="client_email" value = "' . $pk_obj->getOrderParams("client_email") . '"/>
+                <input type="hidden" name="client_phone" value = "' . $pk_obj->getOrderParams("client_phone") . '"/>
+                <input type="hidden" name="service_name" value = "' . $pk_obj->getOrderParams("service_name") . '"/>
+                <input type="hidden" name="cart" value = \'' . htmlentities($fiscal_cart_encoded, ENT_QUOTES) . '\' />
+                <input type="hidden" name="sign" value = "' . $sign . '"/>
+                <input type="submit" id="button-confirm" value="Оплатить"/>
+                </form>
+                <script text="javascript">
+                window.onload=function() 
+                {
+                    setTimeout(sendForm, 100);
+                }   
+                function sendForm() 
+                {
+                    document.querySelector("#pay_form").submit();
+                }          
+                document.querySelector("#button-confirm").onclick = document.querySelector("#pay_form").submit;
+                </script>';
+
+        if ($form  == "") {
+            $form = '<h3>Произошла ошибка при инциализации платежа</h3><p>$err_num: ' . htmlspecialchars($err_text) . '</p>';
+        }
+
+        return $form;
+    }
 }

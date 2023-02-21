@@ -3,40 +3,46 @@ class ControllerCheckoutPayfromemail extends Controller
 {
     public function index()
     {
-        $this->load->model('checkout/order');
-        $this->load->model('extension/payment/tinkoff');
-        $this->language->load('extension/payment/tinkoff');
-        $order = $this->model_checkout_order->getOrder($this->request->get['order_id']);
-
-        $order['shipping_cost'] = $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100;
-
-        $orderProducts = $this->model_checkout_order->getOrderProducts($this->request->get['order_id']);
-        $items = [];
-        foreach ($orderProducts as $item) {
-            $product_price = $this->currency->format($item['price'], $order['currency_code'], $order['currency_value'], false) * 100;
-            $total_price = $this->currency->format($item['total'], $order['currency_code'], $order['currency_value'], false) * 100;
-            $items[] = [
-                'name' => $item['name'],
-                'price' => $product_price,
-                'quantity' => $item['quantity'],
-                'total' => $total_price,
-            ];
-            $order['shipping_cost'] -= $total_price;
-        }
-        $data['payment'] = $this->model_extension_payment_tinkoff->initEmailPayment(array(
-            'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
-            'orderId' => $this->request->get['order_id'],
-            'email' => $order['email'],
-            'order' => $order,
-            'products' => $items,
-        ));
-        $data['payButton'] = $this->language->get('pay_button');
-        $output = '<!DOCTYPE html><html lang="ru"><head></head><body><div style="opacity:0;">';
-        $output .= $this->load->view('extension/payment/tinkoff_checkout', $data);
-        $output .= '<script>document.addEventListener("DOMContentLoaded", function(){document.getElementById(\'form-tinkoff\').submit()})</script>';
-        $output .= '</div></body></html>';
-        $this->response->setOutput($output);
+        $form = $this->load->controller('extension/payment/paykeeper/generateEmailPaymentForm', $this->request->get['order_id']);
+        echo $form;
     }
+
+    // public function tink()
+    // {
+    //     $this->load->model('checkout/order');
+    //     $this->load->model('extension/payment/tinkoff');
+    //     $this->language->load('extension/payment/tinkoff');
+    //     $order = $this->model_checkout_order->getOrder($this->request->get['order_id']);
+
+    //     $order['shipping_cost'] = $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100;
+
+    //     $orderProducts = $this->model_checkout_order->getOrderProducts($this->request->get['order_id']);
+    //     $items = [];
+    //     foreach ($orderProducts as $item) {
+    //         $product_price = $this->currency->format($item['price'], $order['currency_code'], $order['currency_value'], false) * 100;
+    //         $total_price = $this->currency->format($item['total'], $order['currency_code'], $order['currency_value'], false) * 100;
+    //         $items[] = [
+    //             'name' => $item['name'],
+    //             'price' => $product_price,
+    //             'quantity' => $item['quantity'],
+    //             'total' => $total_price,
+    //         ];
+    //         $order['shipping_cost'] -= $total_price;
+    //     }
+    //     $data['payment'] = $this->model_extension_payment_tinkoff->initEmailPayment(array(
+    //         'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false) * 100,
+    //         'orderId' => $this->request->get['order_id'],
+    //         'email' => $order['email'],
+    //         'order' => $order,
+    //         'products' => $items,
+    //     ));
+    //     $data['payButton'] = $this->language->get('pay_button');
+    //     $output = '<!DOCTYPE html><html lang="ru"><head></head><body><div style="opacity:0;">';
+    //     $output .= $this->load->view('extension/payment/tinkoff_checkout', $data);
+    //     $output .= '<script>document.addEventListener("DOMContentLoaded", function(){document.getElementById(\'form-tinkoff\').submit()})</script>';
+    //     $output .= '</div></body></html>';
+    //     $this->response->setOutput($output);
+    // }
 
     // public function tinkoff()
     // {
