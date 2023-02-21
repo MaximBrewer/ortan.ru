@@ -160,6 +160,7 @@ class Mail
 		try {
 			$result = $mail->send();
 		} catch (\Exception $e) {
+			file_put_contents($_SERVER['DOCUMENT_ROOT'] . '/email.log', $e->getMessage(), FILE_APPEND);
 			$result = false;
 		}
 		return $result;
