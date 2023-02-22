@@ -9,7 +9,7 @@ class ModelExtensionModuleBitrix24 extends Model
     {
         $this->load->model('checkout/order');
         $order_info = $this->model_checkout_order->getOrder($order_id);
-        $queryURL = $this->b24Url . "/rest/" . $this->b24UserID ."/" . $this->b24WebHook. "/";
+        $queryURL = $this->b24Url . "/rest/" . $this->b24UserID . "/" . $this->b24WebHook . "/";
 
         $telephone = trim($order_info['telephone']);
         $telephone = preg_replace('/[^0-9+]/isu', '', $telephone);
@@ -17,11 +17,11 @@ class ModelExtensionModuleBitrix24 extends Model
         //Контакт
         $contactFilter = [
             "filter" => ["PHONE" => $telephone],
-            "select" => [ "ID", "NAME", "LAST_NAME"]
+            "select" => ["ID", "NAME", "LAST_NAME"]
         ];
-        $aContact = $this->query($queryURL . 'crm.contact.list.json',$contactFilter);
+        $aContact = $this->query($queryURL . 'crm.contact.list.json', $contactFilter);
 
-        if (!empty($aContact[0]['ID'])){
+        if (!empty($aContact[0]['ID'])) {
             $contact_id = $aContact[0]['ID'];
         } else {
             $contactUrl = $queryURL . 'crm.contact.add.json';
@@ -63,14 +63,14 @@ class ModelExtensionModuleBitrix24 extends Model
         $aProductRows = [];
         foreach ($aProducts as $product) {
             $name = trim($product['model'] . ' ' . trim($product['name']));
-            if ((float)$product['special'] > 0){
+            if ((float)$product['special'] > 0) {
                 $name .= '(скидка)';
             }
 
             $razmer = '';
             $options = '';
-            if (!empty($product['option'])){
-                foreach($product['option'] as $option){
+            if (!empty($product['option'])) {
+                foreach ($product['option'] as $option) {
                     $options .= ($options ? ', ' : '') . $option['name'] . ':' . $option['value'];
                     if ($option['option_id'] == 11) { //Размер
                         $razmer = $option['bitrix_id'];
@@ -78,15 +78,15 @@ class ModelExtensionModuleBitrix24 extends Model
                 }
             }
             if ($options) {
-                $name .= '('.$options.')';
+                $name .= '(' . $options . ')';
             }
             $prod = $product['quantity'] . ' шт. - ' . $product['rub_price'] . ' - <a href="' . $product['href'] . '">' . $name . '</a>' . ' - <a href="' . $product['location'] . '">Поставщик</a>';
-            $prod2 = $product['quantity'] . ' шт. - ' . $product['rub_price']  . $name ;
+            $prod2 = $product['quantity'] . ' шт. - ' . $product['rub_price']  . $name;
             $infoProd .= ($infoProd ? '<br>' : '') . $prod;
             $infoProd2 .= ($infoProd2 ? '
 			 ' : '') . $prod2;
 
-            if (!$product['bitrix_id']){
+            if (!$product['bitrix_id']) {
                 $product['bitrix_id'] = $this->export_product($product['product_id']);
             }
             $productRow = [
@@ -102,7 +102,6 @@ class ModelExtensionModuleBitrix24 extends Model
             // }
 
             $aProductRows[] = $productRow;
-
         }
         if ($infoProd) {
             $info .= '<b>Товары</b><br> ' . $infoProd;
@@ -117,7 +116,7 @@ class ModelExtensionModuleBitrix24 extends Model
             $aProductRows[] = ["PRODUCT_ID" => '33721', "PRICE" => $shipping['price'], "QUANTITY" => 1];
         }
         if ($infoShipping) {
-            $info .= '<br><br> <b>Доставка</b><br> '.$infoShipping;
+            $info .= '<br><br> <b>Доставка</b><br> ' . $infoShipping;
         }
 
 
@@ -128,7 +127,7 @@ class ModelExtensionModuleBitrix24 extends Model
         $dealUrl = $queryURL . 'crm.lead.add.json';
         $dealData = [
             "fields" => [
-                "TITLE" => "Заказ ".$order_info['order_id']." c ortan.ru",
+                "TITLE" => "Заказ " . $order_info['order_id'] . " c ortan.ru",
                 "CONTACT_ID" => $contact_id,
                 "OPENED" => "Y",
                 "DATE_CREATE" => date('c',  strtotime($order_info['date_added'])),
@@ -145,14 +144,14 @@ class ModelExtensionModuleBitrix24 extends Model
                 "UF_CRM_1661267846592" => $isPayed,
                 "UF_CRM_1666187862716" => $infoProd2,
                 "UF_CRM_1677104840779" => "https://ortan.ru/index.php?route=checkout/payfromemail&order_id=" . $order_id,
-                
+
 
                 //Дополнительные поля СДЕЛКА
                 "UF_CRM_1650633976280" => $order_id,
                 "UF_CRM_1650639723115" => $address,
                 "UF_CRM_1650970812517" => $comment,
                 "UF_CRM_1651739729349" => $isPayed,
-                // "UF_CRM_1677104840779" => $infoProd2,
+                "UF_CRM_1677105327390" => "https://ortan.ru/index.php?route=checkout/payfromemail&order_id=" . $order_id,
             ],
             'params' => [
                 "REGISTER_SONET_EVENT" => "Y"    // Y = произвести регистрацию события добавления лида в живой ленте. Дополнительно будет отправлено уведомление ответственному за сделку.
@@ -162,7 +161,7 @@ class ModelExtensionModuleBitrix24 extends Model
         $dealData = $this->set_utm($dealData);
 
         $res = $this->query($dealUrl, $dealData);
-        if (!empty($res)){
+        if (!empty($res)) {
             $this->model_checkout_order->setBitrixDealId($order_id, $res);
 
             //сохраняем товары в заказ
@@ -173,7 +172,6 @@ class ModelExtensionModuleBitrix24 extends Model
             ];
 
             $this->query($productsUrl, $productsData);
-
         }
 
         return $res;
@@ -202,7 +200,7 @@ class ModelExtensionModuleBitrix24 extends Model
 
     public function push_call($name, $email, $phone, $comment, $title)
     {
-        $queryURL = $this->b24Url . "/rest/" . $this->b24UserID ."/" . $this->b24WebHook. "/";
+        $queryURL = $this->b24Url . "/rest/" . $this->b24UserID . "/" . $this->b24WebHook . "/";
 
         $telephone = trim($phone);
         $telephone = preg_replace('/[^0-9+]/isu', '', $telephone);
@@ -210,11 +208,11 @@ class ModelExtensionModuleBitrix24 extends Model
         //Контакт
         $contactFilter = [
             "filter" => ["PHONE" => $telephone],
-            "select" => [ "ID", "NAME", "LAST_NAME"]
+            "select" => ["ID", "NAME", "LAST_NAME"]
         ];
-        $aContact = $this->query($queryURL . 'crm.contact.list.json',$contactFilter);
+        $aContact = $this->query($queryURL . 'crm.contact.list.json', $contactFilter);
 
-        if (!empty($aContact[0]['ID'])){
+        if (!empty($aContact[0]['ID'])) {
             $contact_id = $aContact[0]['ID'];
         } else {
             $contactUrl = $queryURL . 'crm.contact.add.json';
@@ -253,7 +251,7 @@ class ModelExtensionModuleBitrix24 extends Model
                 "OPENED" => "Y",
                 "DATE_CREATE" => date('c',  time()),
                 "COMMENTS" => $comment,
-       ],
+            ],
             'params' => [
                 "REGISTER_SONET_EVENT" => "Y"    // Y = произвести регистрацию события добавления лида в живой ленте. Дополнительно будет отправлено уведомление ответственному за сделку.
             ]
@@ -265,13 +263,14 @@ class ModelExtensionModuleBitrix24 extends Model
         return $res;
     }
 
-    public function export_product($product_id){
+    public function export_product($product_id)
+    {
         $customer_group = 1;
         $q = "SELECT p.*, pd.*,
             (SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . (int)$customer_group . "' AND ((ps.date_start = '0000-00-00' OR ps.date_start < NOW()) AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special
             FROM " . DB_PREFIX . "product p
             LEFT JOIN " . DB_PREFIX . "product_description pd ON p.product_id=pd.product_id AND pd.language_id='1' 
-            WHERE p.product_id='".(int)$product_id."'";
+            WHERE p.product_id='" . (int)$product_id . "'";
         $query = $this->db->query($q);
         $aProduct = $query->row;
         $bitrixId = $aProduct['bitrix_id'];
@@ -300,7 +299,7 @@ class ModelExtensionModuleBitrix24 extends Model
             LEFT JOIN " . DB_PREFIX . "url_alias ua ON ua.query=CONCAT('category_id=', c.category_id)
             WHERE p2c.product_id = '" . (int)$aProduct['product_id'] . "' AND p2c.main_category='1' AND c.category_id > 0 LIMIT 1";
         $qCats = $this->db->query($q);
-        if(empty($qCats->rows)){
+        if (empty($qCats->rows)) {
             $q = "SELECT cd.name, c.category_id, c.bitrix_id, c.parent_id, ua.keyword  FROM " . DB_PREFIX . "product_to_category p2c 
                 LEFT JOIN " . DB_PREFIX . "category c ON c.category_id=p2c.category_id
                 LEFT JOIN " . DB_PREFIX . "category_description cd ON cd.category_id=p2c.category_id
@@ -308,13 +307,13 @@ class ModelExtensionModuleBitrix24 extends Model
                 WHERE p2c.product_id = '" . (int)$aProduct['product_id'] . "' AND c.category_id > 0 LIMIT 1";
             $qCats = $this->db->query($q);
         }
-        foreach($qCats->rows as $aCat){
+        foreach ($qCats->rows as $aCat) {
             $catBitrixId = (empty($catBitrixId) and !empty($aCat['bitrix_id'])) ? $aCat['bitrix_id'] : 0;
             array_unshift($aCatNames, $aCat);
         }
 
         $cnt = 0;
-        while($aCatNames[0] && $aCatNames[0]['parent_id']){
+        while ($aCatNames[0] && $aCatNames[0]['parent_id']) {
             ++$cnt;
             if ($cnt > 6) break;
             $q = "SELECT cd.name, c.category_id, c.bitrix_id, c.parent_id, ua.keyword FROM " . DB_PREFIX . "category c 
@@ -322,7 +321,7 @@ class ModelExtensionModuleBitrix24 extends Model
                 LEFT JOIN " . DB_PREFIX . "url_alias ua ON ua.query=CONCAT('category_id=', c.category_id)
                 WHERE c.category_id = '" . $aCatNames[0]['parent_id'] . "' LIMIT 1";
             $qCats = $this->db->query($q);
-            foreach($qCats->rows as $aCat){
+            foreach ($qCats->rows as $aCat) {
                 array_unshift($aCatNames, $aCat);
             }
         }
@@ -332,21 +331,21 @@ class ModelExtensionModuleBitrix24 extends Model
             $typeImg = pathinfo($pathImg, PATHINFO_EXTENSION);
             $dataImg = file_get_contents($pathImg);
             $base64 = base64_encode($dataImg);
-            $imgFilename = 'product-'.$aProduct['product_id'] . '.' . $typeImg;
-            $aImg = ['fileData'=> [$imgFilename, $base64]];
+            $imgFilename = 'product-' . $aProduct['product_id'] . '.' . $typeImg;
+            $aImg = ['fileData' => [$imgFilename, $base64]];
         } else {
             $aImg = false;
         }
 
         $links = [];
 
-        foreach($aCatNames as $aCat){
+        foreach ($aCatNames as $aCat) {
             $links[] = $aCat['keyword'];
         }
 
         $links[] = $aProduct['seo_keyword'];
         $link = trim(implode("/", $links), "/");
-        $link = "https://ortan.ru/" . $link. "/";
+        $link = "https://ortan.ru/" . $link . "/";
 
         $name = trim($aProduct['model'] . ' ' . trim($aProduct['name']));
 
@@ -371,7 +370,7 @@ class ModelExtensionModuleBitrix24 extends Model
             'PROPERTY_193' => $brandName,
             'PROPERTY_199' => $link,
             'PROPERTY_201' => $store,
-/*
+            /*
                 'PREVIEW_PICTURE' => $thumb,
 
                 'SIZE' => $sizeName,
@@ -384,7 +383,7 @@ class ModelExtensionModuleBitrix24 extends Model
                 'omolgType' => $omolgName,
 */
         ];
-        if (!empty($aImg) and empty($aProduct['bitrix_id'])){
+        if (!empty($aImg) and empty($aProduct['bitrix_id'])) {
             $data['DETAIL_PICTURE'] = $aImg;
         }
 
@@ -412,13 +411,14 @@ class ModelExtensionModuleBitrix24 extends Model
         return $bitrixId;
     }
 
-    public function export_category($bitrixId, $data){
+    public function export_category($bitrixId, $data)
+    {
         $res = 0;
         if (empty($bitrixId)) {
             $productUrl = $this->query_url('crm.productsection.add.json');
             $productData = [
                 'fields' => [
-                    'NAME'=> $data['cd_name'],
+                    'NAME' => $data['cd_name'],
                     'SECTION_ID' => $data['pa_bitrix_id']
                 ]
             ];
@@ -428,7 +428,7 @@ class ModelExtensionModuleBitrix24 extends Model
             $productData = [
                 'id' => $bitrixId,
                 'fields' => [
-                    'NAME'=> $data['cd_name'],
+                    'NAME' => $data['cd_name'],
                     'SECTION_ID' => $data['pa_bitrix_id']
                 ]
             ];
@@ -438,15 +438,17 @@ class ModelExtensionModuleBitrix24 extends Model
         return $res;
     }
 
-    public function get_properties(){
+    public function get_properties()
+    {
         $productUrl = $this->query_url('crm.deal.property.list.json');
-        $res = $this->query($productUrl,[]);
+        $res = $this->query($productUrl, []);
         return $res;
     }
 
-    public function get_property($id){
+    public function get_property($id)
+    {
         $productUrl = $this->query_url('crm.product.property.get.json');
-        $res = $this->query($productUrl,['id' => $id]);
+        $res = $this->query($productUrl, ['id' => $id]);
         return $res;
     }
 
@@ -455,7 +457,7 @@ class ModelExtensionModuleBitrix24 extends Model
         //сохраняем ID в SORT
         $aValues = [];
         $i = 0;
-        foreach ($aOptionValues as $aOptionValue){
+        foreach ($aOptionValues as $aOptionValue) {
             $optionValueId = $aOptionValue['option_value_id'];
             $bitrixValueId = isset($aOptionValue['bitrix_id']) ? $aOptionValue['bitrix_id'] : 0;
 
@@ -490,7 +492,7 @@ class ModelExtensionModuleBitrix24 extends Model
         }
 
         $aValues = [];
-        foreach ($aOptionValues as $aOptionValue){
+        foreach ($aOptionValues as $aOptionValue) {
             $optionValueId = $aOptionValue['option_value_id'];
             $bitrixValueId = isset($aOptionValue['bitrix_id']) ? $aOptionValue['bitrix_id'] : 0;
 
@@ -520,13 +522,14 @@ class ModelExtensionModuleBitrix24 extends Model
         return $res;
     }
 
-    private function query_url($url = ''):string
+    private function query_url($url = ''): string
     {
-        return $this->b24Url . "/rest/" . $this->b24UserID ."/" . $this->b24WebHook. "/" . $url;
+        return $this->b24Url . "/rest/" . $this->b24UserID . "/" . $this->b24WebHook . "/" . $url;
     }
     // отправляем запрос в Б24 и обрабатываем ответ
 
-    private function query($url, $data){
+    private function query($url, $data)
+    {
         $qData =  http_build_query($data);
 
         $curl = curl_init();
@@ -543,7 +546,7 @@ class ModelExtensionModuleBitrix24 extends Model
         $result = json_decode($result, 1);
         $res = '';
         if (!array_key_exists('error', $result)) {
-            if (!empty($result['result'])){
+            if (!empty($result['result'])) {
                 $res = $result['result'];
             }
         }
@@ -551,11 +554,11 @@ class ModelExtensionModuleBitrix24 extends Model
         return $res;
     }
 
-    private function get_address($order_info):string
+    private function get_address($order_info): string
     {
         $address = '';
 
-        if(!empty($this->session->data['cdek']['pvzinfo'])) {
+        if (!empty($this->session->data['cdek']['pvzinfo'])) {
             $address = 'ПВЗ: ' . $this->session->data['cdek']['pvzinfo'];
         } else {
             $comment = $order_info['comment'];
@@ -564,6 +567,8 @@ class ModelExtensionModuleBitrix24 extends Model
                 $address = !empty($aMatch[0][1]) ? $aMatch[0][1] : '';
             }
         }
+
+        if ($address) $address = $order_info['shipping_city'] . ', ' . $address;
 
         if (!$address) {
             $format = 'Курьером: {country}, {zone}, {city}, {address_1} {address_2}';
@@ -600,7 +605,7 @@ class ModelExtensionModuleBitrix24 extends Model
         return $address;
     }
 
-    private function get_products($order_info):array
+    private function get_products($order_info): array
     {
         $order_id = $order_info['order_id'];
 
@@ -651,7 +656,7 @@ class ModelExtensionModuleBitrix24 extends Model
         return $aProducts;
     }
 
-    private function get_totals($order_info):array
+    private function get_totals($order_info): array
     {
         $order_id = $order_info['order_id'];
 
@@ -660,7 +665,7 @@ class ModelExtensionModuleBitrix24 extends Model
         $order_total_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_total` WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
 
         foreach ($order_total_query->rows as $total) {
-            if(!(float)$total['value']) continue;
+            if (!(float)$total['value']) continue;
             $totals[] = array(
                 'title' => $total['title'],
                 'text'  => $this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value']),
@@ -670,7 +675,7 @@ class ModelExtensionModuleBitrix24 extends Model
         return $totals;
     }
 
-    private function get_shipping($order_info):array
+    private function get_shipping($order_info): array
     {
         $order_id = $order_info['order_id'];
 
@@ -679,7 +684,7 @@ class ModelExtensionModuleBitrix24 extends Model
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_total` WHERE order_id = '" . (int)$order_id . "' AND code = 'shipping'");
 
         foreach ($query->rows as $total) {
-            if(!(float)$total['value']) continue;
+            if (!(float)$total['value']) continue;
             $totals[] = array(
                 'title' => $total['title'],
                 'text'  => $this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value']),
@@ -690,19 +695,19 @@ class ModelExtensionModuleBitrix24 extends Model
         return $totals;
     }
 
-    private function is_order_payed($order_status_id):bool
+    private function is_order_payed($order_status_id): bool
     {
         $isPayed = false;
-        if (in_array((int)$order_status_id, [2])){
+        if (in_array((int)$order_status_id, [2])) {
             $isPayed = true;
         }
         return $isPayed;
     }
 
-    private function set_utm($data):array
+    private function set_utm($data): array
     {
         foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as $utmName) {
-            if(isset($_COOKIE[$utmName])) {
+            if (isset($_COOKIE[$utmName])) {
                 $fieldName = strtoupper($utmName);
                 $data["fields"][$fieldName] = $_COOKIE[$utmName];
             }
@@ -710,14 +715,16 @@ class ModelExtensionModuleBitrix24 extends Model
         return $data;
     }
 
-    private function rub($amount, $currency){
+    private function rub($amount, $currency)
+    {
         $decimal_place = $this->currencies[$currency]['decimal_place'];
         $val = round($amount, (int)$decimal_place);
 
         return $val;
     }
 
-    private function productOptionValue($product_id, $option_id){
+    private function productOptionValue($product_id, $option_id)
+    {
         $aRes = [
             'option_value_id' => 0,
             'bitrix_id' => 0,
@@ -725,9 +732,9 @@ class ModelExtensionModuleBitrix24 extends Model
         ];
 
         $q = "SELECT ov.option_value_id, ov.bitrix_id, ovd.name FROM " . DB_PREFIX . "product_option_value pov
-            LEFT JOIN " . DB_PREFIX . "option_value ov ON ov.option_value_id=pov.option_value_id AND ov.option_id='". (int)$option_id ."' 
-            LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON ovd.option_value_id=pov.option_value_id AND ovd.option_id='". (int)$option_id ."' AND ovd.language_id='1' 
-            WHERE pov.product_id='" . (int)$product_id . "' AND pov.option_id='". (int)$option_id ."'";
+            LEFT JOIN " . DB_PREFIX . "option_value ov ON ov.option_value_id=pov.option_value_id AND ov.option_id='" . (int)$option_id . "' 
+            LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON ovd.option_value_id=pov.option_value_id AND ovd.option_id='" . (int)$option_id . "' AND ovd.language_id='1' 
+            WHERE pov.product_id='" . (int)$product_id . "' AND pov.option_id='" . (int)$option_id . "'";
         $qRes = $this->db->query($q);
         if (!empty($qRes->row)) {
             $aRes = $qRes->row;
@@ -736,27 +743,28 @@ class ModelExtensionModuleBitrix24 extends Model
         return $aRes;
     }
 
-    private function productOptionValueName($product_id, $option_id){
+    private function productOptionValueName($product_id, $option_id)
+    {
         $q = "SELECT ovd.name FROM " . DB_PREFIX . "product_option_value pov
-            LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON ovd.option_value_id=pov.option_value_id AND ovd.option_id='". (int)$option_id ."' AND ovd.language_id='1' 
-            WHERE pov.product_id='" . (int)$product_id . "' AND pov.option_id='". (int)$option_id ."'";
+            LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON ovd.option_value_id=pov.option_value_id AND ovd.option_id='" . (int)$option_id . "' AND ovd.language_id='1' 
+            WHERE pov.product_id='" . (int)$product_id . "' AND pov.option_id='" . (int)$option_id . "'";
         $qRes = $this->db->query($q);
         $aRes = !empty($qRes->row) ? $qRes->row : [];
 
         return !empty($aRes['name']) ? $aRes['name'] : '';
     }
 
-    public function getProductStore($store) {
+    public function getProductStore($store)
+    {
         $stores = [
             1 => 'Россия',
             2 => 'Беларусь',
             3 => 'Китай'
         ];
-        if(isset($stores[$store])){
+        if (isset($stores[$store])) {
             return $stores[$store];
         } else {
             return 'Россия';
         }
     }
-
 }
