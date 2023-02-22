@@ -66,6 +66,9 @@ class ControllerExtensionPaymentPaykeeper extends Controller
                     $paykeeper_order_status_id = $this->db->query("select * from  " . DB_PREFIX . "setting where `key`='paykeeper_order_status_id' ");
                     $paykeeper_order_status_id = $paykeeper_order_status_id->row['value'];
                     $this->model_checkout_order->addOrderHistory($orderid, $paykeeper_order_status_id);
+
+                    $this->load->model('extension/module/bitrix24');
+                    $this->model_extension_module_bitrix24->update_order_status($orderid);
                 }
                 echo "OK " . md5($id . $secret_seed);
             } else echo "OK";

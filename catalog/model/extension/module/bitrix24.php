@@ -95,12 +95,12 @@ class ModelExtensionModuleBitrix24 extends Model
                 "PRICE" => $product['rub_price'],
                 "QUANTITY" => $product['quantity']
             ];
-/*
-            if ($razmer){
-                $productRow['PROPERTY_221'] = $razmer;
-                $productRow['PROPERTY_219'] = '313';
-            }
-*/
+
+            // if ($razmer){
+            //     $productRow['PROPERTY_221'] = $razmer;
+            //     $productRow['PROPERTY_219'] = '313';
+            // }
+
             $aProductRows[] = $productRow;
 
         }
@@ -557,7 +557,7 @@ class ModelExtensionModuleBitrix24 extends Model
         } else {
             $comment = $order_info['comment'];
             if (strpos($comment, '[CDEK]') !== false) {
-                preg_match('/CDEK](.*)\[\/CDEK/ui', $comment, $aMatch);
+                preg_match('/CDEK\](.*)\[\/CDEK/ui', $comment, $aMatch);
                 $address = !empty($aMatch[0][1]) ? $aMatch[0][1] : '';
             }
         }
