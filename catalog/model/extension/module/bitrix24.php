@@ -144,12 +144,15 @@ class ModelExtensionModuleBitrix24 extends Model
                 "UF_CRM_1661267716779" => $comment,
                 "UF_CRM_1661267846592" => $isPayed,
                 "UF_CRM_1666187862716" => $infoProd2,
+                "UF_CRM_1677104840779" => "https://ortan.ru/index.php?route=checkout/payfromemail&order_id=" . $order_id,
+                
 
                 //Дополнительные поля СДЕЛКА
                 "UF_CRM_1650633976280" => $order_id,
                 "UF_CRM_1650639723115" => $address,
                 "UF_CRM_1650970812517" => $comment,
                 "UF_CRM_1651739729349" => $isPayed,
+                // "UF_CRM_1677104840779" => $infoProd2,
             ],
             'params' => [
                 "REGISTER_SONET_EVENT" => "Y"    // Y = произвести регистрацию события добавления лида в живой ленте. Дополнительно будет отправлено уведомление ответственному за сделку.
