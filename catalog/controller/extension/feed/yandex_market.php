@@ -69,7 +69,9 @@ class ControllerExtensionFeedYandexMarket extends Controller
 			$out_of_stock_id = $this->config->get('yandex_market_out_of_stock'); // id статуса товара "Нет на складе"
 			$vendor_required = false; // true - только товары у которых задан производитель, необходимо для 'vendor.model'
 
-			if (!isset($_GET['all']))
+			if (isset($_GET['stock']))
+				$products = $this->model_extension_feed_yandex_market->getStockProduct($allowed_categories, $out_of_stock_id, $vendor_required);
+			elseif (!isset($_GET['all']))
 				$products = $this->model_extension_feed_yandex_market->getProduct($allowed_categories, $out_of_stock_id, $vendor_required);
 			else
 				$products = $this->model_extension_feed_yandex_market->getAllProduct($allowed_categories, $out_of_stock_id, $vendor_required);
