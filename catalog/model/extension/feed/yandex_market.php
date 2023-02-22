@@ -12,7 +12,7 @@ class ModelExtensionFeedYandexMarket extends Model {
 	}
 
 	public function getProduct($allowed_categories, $out_of_stock_id, $vendor_required = true) {
-		$q = "SELECT p.*, pd.name, pd.name_ym, pd.description, m.name AS manufacturer, p2c.category_id, ovd.name ovd_name, ovd2.name ovd2_name, covd.name covd2_name, IFNULL(ps.price, p.price) AS price,
+		$q = "SELECT p.*, pd.name, pd.name_ym, pd.description, m.name AS manufacturer, p2c.category_id, ovd.name ovd_name, ovd2.name ovd2_name, covd.name covd2_name, ps.price as discount, p.price as price,
 		
 		(SELECT GROUP_CONCAT(distinct name ORDER BY ovq.sort_order)
 		FROM oc_product_option_value povq
@@ -49,7 +49,7 @@ class ModelExtensionFeedYandexMarket extends Model {
 	}
 
 	public function getStockProduct($allowed_categories, $out_of_stock_id, $vendor_required = true) {
-		$q = "SELECT p.*, pd.name, pd.name_ym, pd.description, m.name AS manufacturer, p2c.category_id, ovd.name ovd_name, ovd2.name ovd2_name, covd.name covd2_name, IFNULL(ps.price, p.price) AS price,
+		$q = "SELECT p.*, pd.name, pd.name_ym, pd.description, m.name AS manufacturer, p2c.category_id, ovd.name ovd_name, ovd2.name ovd2_name, covd.name covd2_name, ps.price as discount, p.price as price,
 		
 		(SELECT GROUP_CONCAT(distinct name ORDER BY ovq.sort_order)
 		FROM oc_product_option_value povq
@@ -86,7 +86,7 @@ class ModelExtensionFeedYandexMarket extends Model {
 	}
 
 	public function getAllProduct($allowed_categories, $out_of_stock_id, $vendor_required = true) {
-		$q = "SELECT p.*, pd.name, pd.name_ym, pd.description, m.name AS manufacturer, p2c.category_id, ovd.name ovd_name, ovd2.name ovd2_name, covd.name covd2_name, IFNULL(ps.price, p.price) AS price,
+		$q = "SELECT p.*, pd.name, pd.name_ym, pd.description, m.name AS manufacturer, p2c.category_id, ovd.name ovd_name, ovd2.name ovd2_name, covd.name covd2_name, ps.price as discount, p.price as price,
 		
 		(SELECT GROUP_CONCAT(distinct name ORDER BY ovq.sort_order)
 		FROM oc_product_option_value povq

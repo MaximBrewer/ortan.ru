@@ -77,7 +77,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 				$products = $this->model_extension_feed_yandex_market->getAllProduct($allowed_categories, $out_of_stock_id, $vendor_required);
 
 			foreach ($products as $product) {
-
+				
 				if (!$product['ovd_name']) continue;
 				if (!empty($product['name_ym'])) {
 					$product['name'] = $product['name_ym'];
@@ -88,7 +88,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 				// Атрибуты товарного предложения
 				$data['id'] = $product['product_id'];
 				$data['group_id'] = $product['product_id'];
-								// $data['type'] = 'vendor.model';
+				// $data['type'] = 'vendor.model';
 				$data['available'] = ($product['quantity'] > 0 || $product['stock_status_id'] == $in_stock_id);
 				//				$data['bid'] = 10;
 				//				$data['cbid'] = 15;
@@ -96,6 +96,12 @@ class ControllerExtensionFeedYandexMarket extends Controller
 				// Параметры товарного предложения
 				$data['url'] = $this->url->link('product/product', 'path=' . $this->getPath($product['category_id']) . '&product_id=' . $product['product_id']);
 				$data['price'] = $this->currency->convert($this->tax->calculate($product['rub_price'], $product['tax_class_id']), $shop_currency, $offers_currency);
+				$data['oldprice'] = false;
+				if ($product['discount'] && $product['rub_price'] > $product['discount']) {
+					$data['oldprice'] = $data['price'];
+					$data['price'] = $this->currency->convert($this->tax->calculate($product['discount'], $product['tax_class_id']), $shop_currency, $offers_currency);
+				}
+				
 				$data['currencyId'] = $offers_currency;
 				$data['categoryId'] = $product['category_id'];
 				$data['delivery'] = 'true';
@@ -324,7 +330,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 				case 'group_id':
 					$value = $value;
 					// if ($value > 0) {
-						$offer[$key] = $value;
+					$offer[$key] = $value;
 					// }
 					break;
 
@@ -351,7 +357,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 
 		$type = isset($offer['type']) ? $offer['type'] : '';
 
-		$allowed_tags = array('url' => 0, 'buyurl' => 0, 'price' => 1, 'dimensions' => 1, 'wprice' => 0, 'currencyId' => 1, 'xCategory' => 0, 'categoryId' => 1, 'picture' => 0, 'store' => 0, 'pickup' => 0, 'delivery' => 0, 'deliveryIncluded' => 0, 'local_delivery_cost' => 0, 'orderingTime' => 0, 'weight' => '0', 'dimension' => '0', 'country_of_origin' => '0', 'barcode' => '0');
+		$allowed_tags = array('url' => 0, 'buyurl' => 0, 'price' => 1, 'oldprice' => 1, 'dimensions' => 1, 'wprice' => 0, 'currencyId' => 1, 'xCategory' => 0, 'categoryId' => 1, 'picture' => 0, 'store' => 0, 'pickup' => 0, 'delivery' => 0, 'deliveryIncluded' => 0, 'local_delivery_cost' => 0, 'orderingTime' => 0, 'weight' => '0', 'dimension' => '0', 'country_of_origin' => '0', 'barcode' => '0');
 
 		switch ($type) {
 			case 'vendor.model':
