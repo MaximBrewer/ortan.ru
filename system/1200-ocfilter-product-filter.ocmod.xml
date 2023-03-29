@@ -374,7 +374,6 @@ $_['text_ocfilter_setting']            = 'Настройки';
               $GLOBALS['cityArray']['address_city'],
               $GLOBALS['cityArray']['address_city2'],
             ], $ocfilter_page_info['meta_title']);
-            var_dump($ocfilter_page_info);
           }
           if(stristr($ocfilter_page_info['meta_description'], 'Москве')){
             $ocfilter_page_info['meta_description'] = str_replace([
