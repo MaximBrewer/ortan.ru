@@ -360,6 +360,37 @@ $_['text_ocfilter_setting']            = 'Настройки';
 
       if ($ocfilter_page_info) {
         $this->document->setTitle($ocfilter_page_info['meta_title']);
+			
+        if($GLOBALS['cityArray']['city_id'] !== 510){
+          if(stristr($ocfilter_page_info['meta_title'], 'Москве')){
+            var_dump($ocfilter_page_info);
+            $ocfilter_page_info['meta_title'] = str_replace([
+              'москва',
+              'москве',
+              'Москва',
+              'Москве'
+            ],[
+              strtolower($GLOBALS['cityArray']['address_city']),
+              strtolower($GLOBALS['cityArray']['address_city2']),
+              $GLOBALS['cityArray']['address_city'],
+              $GLOBALS['cityArray']['address_city2'],
+            ], $ocfilter_page_info['meta_title']);
+            var_dump($ocfilter_page_info);
+          }
+          if(stristr($ocfilter_page_info['meta_description'], 'Москве')){
+            $ocfilter_page_info['meta_description'] = str_replace([
+              'москва',
+              'москве',
+              'Москва',
+              'Москве'
+            ],[
+              strtolower($GLOBALS['cityArray']['address_city']),
+              strtolower($GLOBALS['cityArray']['address_city2']),
+              $GLOBALS['cityArray']['address_city'],
+              $GLOBALS['cityArray']['address_city2'],
+            ], $ocfilter_page_info['meta_description']);
+          }
+        }
 
         if ($ocfilter_page_info['meta_description']) {
 			    $this->document->setDescription($ocfilter_page_info['meta_description']);
