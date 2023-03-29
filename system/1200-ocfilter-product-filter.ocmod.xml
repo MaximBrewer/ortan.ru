@@ -363,7 +363,6 @@ $_['text_ocfilter_setting']            = 'Настройки';
 			
         if($GLOBALS['cityArray']['city_id'] !== 510){
           if(stristr($ocfilter_page_info['meta_title'], 'Москве')){
-            var_dump($ocfilter_page_info);
             $ocfilter_page_info['meta_title'] = str_replace([
               'москва',
               'москве',
