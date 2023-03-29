@@ -359,7 +359,6 @@ $_['text_ocfilter_setting']            = 'Настройки';
       $ocfilter_page_info = $this->load->controller('extension/module/ocfilter/getPageInfo');
 
       if ($ocfilter_page_info) {
-        $this->document->setTitle($ocfilter_page_info['meta_title']);
 			
         if($GLOBALS['cityArray']['city_id'] !== 510){
           if(stristr($ocfilter_page_info['meta_title'], 'Москве')){
@@ -389,6 +388,7 @@ $_['text_ocfilter_setting']            = 'Настройки';
             ], $ocfilter_page_info['meta_description']);
           }
         }
+        $this->document->setTitle($ocfilter_page_info['meta_title']);
 
         if ($ocfilter_page_info['meta_description']) {
 			    $this->document->setDescription($ocfilter_page_info['meta_description']);
