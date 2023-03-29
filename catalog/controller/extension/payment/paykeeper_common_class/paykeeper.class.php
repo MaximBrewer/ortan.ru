@@ -44,9 +44,9 @@ class PaykeeperPayment {
         }
         $this->fiscal_cart[] = array(
             "name" => $name,
-            "price" => $price,
+            "price" => round($price),
             "quantity" => $quantity,
-            "sum" => $sum,
+            "sum" => round($sum),
             "tax" => $tax
         );
     }

@@ -515,12 +515,12 @@ class ControllerExtensionPaymentPaykeeper extends Controller
         $item_index = 0;
 
         foreach ($cart_data as $item) {
-            
+
             $name = $item["name"];
 
             $price = $item['price'];
             $quantity = floatval($item['quantity']);
-            $sum = round($price * $quantity);
+            $sum = $price * $quantity;
 
             $pk_obj->updateFiscalCart(
                 $pk_obj->getPaymentFormType(),
@@ -537,7 +537,7 @@ class ControllerExtensionPaymentPaykeeper extends Controller
             $sum += $position['sum'];
         }
         $sum = $sum ? $sum : $pk_obj->getOrderTotal();
-        
+
         if ($pk_obj->getOrderTotal() != $sum) {
             $pk_obj->updateFiscalCart(
                 $pk_obj->getPaymentFormType(),
@@ -548,11 +548,20 @@ class ControllerExtensionPaymentPaykeeper extends Controller
             );
         }
 
-        $fiscal_cart_encoded = json_encode($pk_obj->getFiscalCart());
+        $summm = 0;
+        $cartit = [];
+        $cartArr = json_decode(json_encode($pk_obj->getFiscalCart()), true);
+        foreach ($cartArr as $itme) {
+            $itme['sum'] = $itme['quantity'] * $itme['price'];
+            $summm += $itme['sum'];
+            $cartit[] = $itme;
+        }
+
+        $fiscal_cart_encoded = json_encode($cartit);
         $pk_obj->correctPrecision();
 
         $sum = $pk_obj->getOrderTotal();
-        
+
         $form = "";
 
         $to_hash = number_format($pk_obj->getOrderTotal(), 2, ".", "") .
@@ -566,8 +575,8 @@ class ControllerExtensionPaymentPaykeeper extends Controller
 
         $form = '
                 <form style="opacity:0;" name="payment" id="pay_form" action="' . $pk_obj->getOrderParams("form_url") . '" accept-charset="utf-8" method="post">
-                <input type="hidden" name="sum" value = "' . $sum . '"/>
-                <input type="hidden" name="orderid" value = "' . $pk_obj->getOrderParams("orderid") . '"/>
+                <input type="hidden" name="sum" value = "' . $summm . '"/>
+                <input type="hidden" name="orderid" value = "' . $pk_obj->getOrderParams("orderid") . '1000000"/>
                 <input type="hidden" name="clientid" value = "' . $pk_obj->getOrderParams("clientid") . '"/>
                 <input type="hidden" name="client_email" value = "' . $pk_obj->getOrderParams("client_email") . '"/>
                 <input type="hidden" name="client_phone" value = "' . $pk_obj->getOrderParams("client_phone") . '"/>
