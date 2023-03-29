@@ -1,10 +1,10 @@
 <?php if ($options || $show_price) { ?>
 
+    <img src="/catalog/view/theme/ortan/assets/images/icon-filter.svg" alt="filter" class="catalog__filterMobile">
   <div class="catalog__filter filter" id="ocfilter">
     <div class="hidden" id="ocfilter-button">
       <button class="btn1 disabled" data-loading-text="<i class='fa fa-refresh fa-spin'></i> Загрузка.."></button>
     </div>
-    <img src="/catalog/view/theme/ortan/assets/images/icon-filter.svg" alt="filter" class="catalog__filterMobile">
     <p class="filter__heading">ФИЛЬТРЫ ТОВАРОВ: </p>
 
 
