@@ -1,5 +1,5 @@
 <?
-//phpinfo();
+phpinfo();
 die;
 // $start = microtime(true);
 // session_start();

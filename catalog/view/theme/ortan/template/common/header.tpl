@@ -69,6 +69,7 @@ if ($title === 'Контакты') {
     <link rel="stylesheet" href="/catalog/view/theme/ortan/assets/css/main.css?v=1.10">
     <link rel="stylesheet" href="/catalog/view/theme/ortan/assets/css/responsive.css">
     <link rel="stylesheet" href="/catalog/view/theme/ortan/assets/css/common2.css">
+    <link rel="stylesheet" href="/catalog/view/theme/ortan/assets/css/servicecenter.css">
     <?php foreach ($styles as $style) { ?>
         <link href="<?php echo $style['href']; ?>" type="text/css" rel="<?php echo $style['rel']; ?>" media="<?php echo $style['media']; ?>" />
     <?php } ?>

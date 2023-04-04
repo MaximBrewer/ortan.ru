@@ -154,6 +154,7 @@ class ControllerInformationInformation extends Controller {
 
 			if($information_id == 4) return $this->response->setOutput($this->load->view('information/about', $data));
 			if($information_id == 8) return $this->response->setOutput($this->load->view('information/opt', $data));
+			if($information_id == 10) return $this->response->setOutput($this->load->view('information/servicecenter', $data));
 			$this->response->setOutput($this->load->view('information/information', $data));
 		} else {
 			$data['breadcrumbs'][] = array(

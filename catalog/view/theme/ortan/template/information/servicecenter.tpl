@@ -24,7 +24,6 @@
         <h1 class="servicecenter__heading innerHeading"><?php echo $heading_title; ?></h1>
       </div>
       <div class="servicecenter__wrapper">
-        <?php echo $description; ?>
       </div>
     </div>
     <?php echo $column_right; ?>
