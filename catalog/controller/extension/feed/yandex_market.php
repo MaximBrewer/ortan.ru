@@ -71,13 +71,15 @@ class ControllerExtensionFeedYandexMarket extends Controller
 
 			if (isset($_GET['stock']))
 				$products = $this->model_extension_feed_yandex_market->getStockProduct($allowed_categories, $out_of_stock_id, $vendor_required);
-			elseif (!isset($_GET['all']))
+			elseif (isset($_GET['category_id'])) {
+				$products = $this->model_extension_feed_yandex_market->getCategoryProduct($_GET['category_id'], $out_of_stock_id, $vendor_required);
+			} elseif (!isset($_GET['all']))
 				$products = $this->model_extension_feed_yandex_market->getProduct($allowed_categories, $out_of_stock_id, $vendor_required);
 			else
 				$products = $this->model_extension_feed_yandex_market->getAllProduct($allowed_categories, $out_of_stock_id, $vendor_required);
 
 			foreach ($products as $product) {
-				
+
 				if (!$product['ovd_name']) continue;
 				if (!empty($product['name_ym'])) {
 					$product['name'] = $product['name_ym'];
@@ -101,7 +103,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 					$data['oldprice'] = $data['price'];
 					$data['price'] = $this->currency->convert($this->tax->calculate($product['discount'], $product['tax_class_id']), $shop_currency, $offers_currency);
 				}
-				
+
 				$data['currencyId'] = $offers_currency;
 				$data['categoryId'] = $product['category_id'];
 				$data['delivery'] = 'true';
