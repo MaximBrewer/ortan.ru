@@ -79,7 +79,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 				$products = $this->model_extension_feed_yandex_market->getAllProduct($allowed_categories, $out_of_stock_id, $vendor_required);
 
 			foreach ($products as $product) {
-
+				// var_dump($product);die;
 				if (!$product['ovd_name']) continue;
 				if (!empty($product['name_ym'])) {
 					$product['name'] = $product['name_ym'];
@@ -186,7 +186,7 @@ class ControllerExtensionFeedYandexMarket extends Controller
 					foreach (explode(',', $product['sizes']) as $size) {
 						$offerData = $data;
 						$offerData['id'] .= '-' . $size;
-						$offerData['id'] = md5($offerData['id']);
+						// $offerData['id'] = $offerData['id'] ю;
 						$offerData['param'][] = [
 							'name' => 'Размер',
 							'value' => $size,
