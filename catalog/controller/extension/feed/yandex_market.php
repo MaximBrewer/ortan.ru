@@ -207,7 +207,9 @@ class ControllerExtensionFeedYandexMarket extends Controller
 			$yml = $this->getYml();
 			if (!isset($_GET['all'])) {
 				file_put_contents(DIR_ROOT_PATH . '/feed/yandex_market.xml', $yml);
-			} else {
+			} elseif (isset($_GET['category_id'])) {
+				file_put_contents(DIR_ROOT_PATH . '/feed/yandex_market_' . $_GET['category_id'] . '.xml', $yml);
+			} {
 				file_put_contents(DIR_ROOT_PATH . '/feed/yandex_market_all.xml', $yml);
 			}
 			$this->response->setOutput($yml);
