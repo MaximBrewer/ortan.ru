@@ -104,8 +104,8 @@
             <add position="before">
                 <![CDATA[
 
-				$markupCategory = $this->model_catalog_product->getCategoryMarkup($product_query->row['product_id']);
-				$price = $price + $markupCategory['markup'];
+				//$markupCategory = $this->model_catalog_product->getCategoryMarkup($product_query->row['product_id']);
+				//$price = $price + $markupCategory['markup'];
 
 				]]>
             </add>
